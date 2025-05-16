@@ -1,0 +1,196 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Check, ChevronRight } from 'lucide-react';
+
+interface SliderCTAProps {
+  onComplete: () => void;
+  slideText?: string;
+  releaseText?: string;
+  successText?: string;
+  accentColor?: string;
+  successHoldTime?: number;
+  disabled?: boolean;
+}
+
+const SliderCTA: React.FC<SliderCTAProps> = ({
+  onComplete,
+  slideText = "Slide to Enter →",
+  releaseText = "Release to Enter",
+  successText = "Vehicle Entered",
+  accentColor = "#0937b2", // Using the brand primary color
+  successHoldTime = 1000,
+  disabled = false,
+}) => {
+  const [offsetX, setOffsetX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const buttonSize = 64; // Button width (16 * 4 = 64px)
+  const containerWidth = 288; // w-72 = 18rem = 288px
+  const maxDragDistance = containerWidth - buttonSize; // Maximum drag distance
+  
+  // Reset after completion
+  useEffect(() => {
+    if (hasCompleted) {
+      const timer = setTimeout(() => {
+        setHasCompleted(false);
+        setOffsetX(0);
+      }, successHoldTime);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCompleted, successHoldTime]);
+  
+  // Handle touch/mouse events
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    if (disabled) return;
+    e.preventDefault(); // Prevent default for touch events
+    setIsDragging(true);
+  };
+  
+  const handleDragMove = (clientX: number) => {
+    if (!isDragging || !sliderRef.current || disabled) return;
+    
+    const rect = sliderRef.current.getBoundingClientRect();
+    const relativeX = clientX - rect.left;
+    // Subtracting half the button width to center the drag point on cursor
+    const newOffset = Math.max(0, Math.min(relativeX - buttonSize/2, maxDragDistance));
+    setOffsetX(newOffset);
+  };
+  
+  const handleDragEnd = () => {
+    if (disabled) return;
+    setIsDragging(false);
+    
+    // Consider it completed if dragged more than 80% of the way
+    const completionThreshold = maxDragDistance * 0.8;
+    
+    if (offsetX >= completionThreshold) {
+      // Success - action triggered
+      setHasCompleted(true);
+      setOffsetX(maxDragDistance); // Snap to the end
+      
+      // Trigger haptic feedback if available
+      if ('vibrate' in navigator) {
+        navigator.vibrate(200);
+      }
+      
+      // Trigger the provided callback
+      onComplete();
+      
+    } else {
+      // Reset if not dragged enough
+      setOffsetX(0);
+    }
+  };
+  
+  // Calculate variables for styling
+  const completionPercent = Math.min(100, (offsetX / maxDragDistance) * 100);
+  
+  // Event handlers for mouse events
+  const handleMouseMove = (e: MouseEvent) => {
+    handleDragMove(e.clientX);
+  };
+  
+  const handleMouseUp = () => {
+    if (isDragging) {
+      handleDragEnd();
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+  };
+  
+  // Add and remove document event listeners
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+  
+  return (
+    <div className={`flex justify-center items-center w-full ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
+      {/* Main slider container */}
+      <div 
+        ref={sliderRef}
+        className={`relative rounded-full h-16 w-72 overflow-hidden ${
+          hasCompleted ? '' : 'bg-opacity-20'
+        } transition-colors duration-300`}
+        style={{ 
+          backgroundColor: hasCompleted ? accentColor : `${accentColor}20`,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        }}
+        role="slider"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={completionPercent}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={(e) => {
+          if ((e.key === 'ArrowRight' || e.key === 'Enter') && !disabled) {
+            setOffsetX(maxDragDistance);
+            handleDragEnd();
+          }
+        }}
+      >
+        {/* Slider background progress */}
+        <div 
+          className="absolute top-0 left-0 h-full transition-all duration-100"
+          style={{ 
+            width: `${completionPercent}%`,
+            backgroundColor: `${accentColor}30`
+          }}
+        />
+      
+        {/* Text label */}
+        <div 
+          className={`absolute inset-0 flex justify-center items-center text-white font-medium ${
+            hasCompleted ? 'opacity-0' : 'opacity-100'
+          } transition-opacity duration-300`}
+        >
+          {offsetX > maxDragDistance / 2 ? releaseText : slideText}
+        </div>
+      
+        {/* Success message */}
+        {hasCompleted && (
+          <div className="absolute inset-0 flex justify-center items-center text-white font-medium">
+            {successText}
+          </div>
+        )}
+      
+        {/* Draggable button */}
+        <div
+          className={`absolute left-0 top-0 flex justify-center items-center h-16 w-16 rounded-full cursor-grab ${
+            isDragging ? 'cursor-grabbing shadow-lg scale-105' : ''
+          } ${disabled ? 'cursor-not-allowed' : ''}`}
+          style={{ 
+            backgroundColor: accentColor,
+            transform: `translateX(${offsetX}px)`,
+            transition: isDragging ? 'none' : 'transform 0.15s ease, box-shadow 0.2s ease, scale 0.2s ease',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            willChange: 'transform',
+          }}
+          onMouseDown={disabled ? undefined : handleDragStart}
+          onTouchStart={disabled ? undefined : handleDragStart}
+          onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+          onTouchEnd={handleDragEnd}
+        >
+          {/* Button icon */}
+          <div className="text-white">
+            {hasCompleted ? (
+              <Check className="h-6 w-6" />
+            ) : (
+              <ChevronRight className="h-6 w-6" />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SliderCTA;

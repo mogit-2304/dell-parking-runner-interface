@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { ActivityFeed } from './ActivityFeed';
+import SliderCTA from './SliderCTA';
 
 interface OfficeActionsProps {
   office: {
@@ -80,13 +81,15 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col space-y-4 mb-4 items-center">
-        <Button 
-          size="lg"
-          onClick={handleIncrement}
-          disabled={office.occupancy >= office.capacity}
-        >
-          <Plus className="mr-1" /> Enter
-        </Button>
+        <div className="w-full">
+          <SliderCTA
+            onComplete={handleIncrement}
+            slideText="Slide to Enter →"
+            releaseText="Release to Enter"
+            successText="Vehicle Entered"
+            disabled={office.occupancy >= office.capacity}
+          />
+        </div>
         
         <Button 
           size="lg"
