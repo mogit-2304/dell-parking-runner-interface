@@ -1,309 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { toast } from '@/hooks/use-toast';
-import { Plus, Minus, RefreshCcw } from 'lucide-react';
 import RecentActivityDropdown from '@/components/RecentActivityDropdown';
-import { activityService } from '@/services/activityService';
-
-// Types
-interface Office {
-  id: string;
-  name: string;
-  capacity: number;
-  occupancy: number;
-  version?: number; // Version for optimistic concurrency control
-}
-
-// Mock data for offices
-const mockOffices: Office[] = [
-  { id: 'hq', name: 'Dell HQ', capacity: 50, occupancy: 10, version: 1 },
-  { id: 'main', name: 'Dell Main', capacity: 156, occupancy: 20, version: 1 }
-];
-
-// Simulated API functions with concurrency handling
-const api = {
-  // Simulate getting latest office data
-  getOffices: async (): Promise<Office[]> => {
-    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
-    const persistedOffices = localStorage.getItem('offices');
-    return persistedOffices ? JSON.parse(persistedOffices) : mockOffices;
-  },
-
-  // Simulate updating office with version check (optimistic concurrency control)
-  updateOffice: async (officeId: string, newOccupancy: number, version: number | undefined): Promise<Office> => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 150));
-
-    // Get current state
-    const offices = JSON.parse(localStorage.getItem('offices') || JSON.stringify(mockOffices));
-    const office = offices.find((o: Office) => o.id === officeId);
-    
-    if (!office) {
-      throw new Error('Office not found');
-    }
-
-    // For CI-01/CI-02: Version check for concurrency control
-    if (version !== undefined && office.version !== version) {
-      // Return a specific error for concurrency conflicts
-      const error = new Error('Conflict: Office data was updated by another user');
-      error.name = 'ConcurrencyError';
-      throw error;
-    }
-
-    // Update and save
-    office.occupancy = newOccupancy;
-    office.version = (office.version || 0) + 1;
-    
-    localStorage.setItem('offices', JSON.stringify(offices));
-    return office;
-  }
-};
+import OccupancyCounter from '@/components/OccupancyCounter';
+import LoadingState from '@/components/LoadingState';
+import ErrorState from '@/components/ErrorState';
+import { useOfficeManagement } from '@/hooks/useOfficeManagement';
 
 const SelectOffice = () => {
-  const navigate = useNavigate();
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const {
+    offices,
+    selectedOffice,
+    loading,
+    error,
+    isUpdating,
+    fetchOffices,
+    handleSelectOffice,
+    handleIncrement,
+    handleDecrement
+  } = useOfficeManagement();
 
-  // Fetch offices data
-  const fetchOffices = async () => {
-    try {
-      setLoading(true);
-      const latestOffices = await api.getOffices();
-      setOffices(latestOffices);
-      
-      // Update selected office if it exists
-      if (selectedOffice) {
-        const updatedSelectedOffice = latestOffices.find(o => o.id === selectedOffice.id);
-        if (updatedSelectedOffice) {
-          setSelectedOffice(updatedSelectedOffice);
-        }
-      }
-      
-      setLoading(false);
-    } catch (err) {
-      setError('Unable to load offices');
-      setLoading(false);
-    }
-  };
-
+  // Initial data fetching
   useEffect(() => {
     fetchOffices();
-  }, []);
+  }, [fetchOffices]);
 
-  // Handle office selection
-  const handleSelectOffice = (officeId: string) => {
-    const office = offices.find(o => o.id === officeId);
-    if (office) {
-      setSelectedOffice(office);
-    }
-  };
-
-  // Record activity
-  const recordActivity = async (type: 'check-in' | 'check-out', officeName: string) => {
-    try {
-      await activityService.addActivity({
-        type,
-        officeName
-      });
-    } catch (err) {
-      console.error('Failed to record activity:', err);
-    }
-  };
-
-  // Handle increment occupancy
-  const handleIncrement = async () => {
-    if (!selectedOffice || isUpdating) return;
-    
-    // Check if at capacity
-    if (selectedOffice.occupancy >= selectedOffice.capacity) {
-      toast({
-        title: "Parking full",
-        description: `${selectedOffice.name} parking is at capacity.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsUpdating(true);
-      
-      // Get latest office data before update to handle PSU-06
-      await fetchOffices();
-      
-      // Re-check capacity after refresh
-      const refreshedOffice = offices.find(o => o.id === selectedOffice.id);
-      if (!refreshedOffice || refreshedOffice.occupancy >= refreshedOffice.capacity) {
-        toast({
-          title: "Parking full",
-          description: `${selectedOffice.name} parking is at capacity.`,
-          variant: "destructive",
-        });
-        setIsUpdating(false);
-        return;
-      }
-      
-      // Attempt the update with version for optimistic concurrency
-      const newOccupancy = refreshedOffice.occupancy + 1;
-      const updatedOffice = await api.updateOffice(
-        selectedOffice.id, 
-        newOccupancy, 
-        refreshedOffice.version
-      );
-      
-      // Update state with the new office data
-      setOffices(offices.map(office => 
-        office.id === selectedOffice.id ? updatedOffice : office
-      ));
-      
-      setSelectedOffice(updatedOffice);
-      
-      // Record check-in activity
-      await recordActivity('check-in', updatedOffice.name);
-      
-    } catch (err: any) {
-      if (err.name === 'ConcurrencyError') {
-        // Handle CI-01: Concurrent update detected
-        toast({
-          title: "Update conflict",
-          description: "Someone else updated the count. Refreshing data.",
-          variant: "destructive",
-        });
-        // Refresh to get the latest state
-        fetchOffices();
-      } else {
-        // Handle CI-03: Database failure
-        toast({
-          title: "Unable to update—try again",
-          description: "Failed to update parking occupancy.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  // Handle decrement occupancy
-  const handleDecrement = async () => {
-    if (!selectedOffice || isUpdating) return;
-    
-    // Check if at zero
-    if (selectedOffice.occupancy <= 0) {
-      toast({
-        title: "No vehicles to exit",
-        description: `${selectedOffice.name} parking is already empty.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsUpdating(true);
-      
-      // Get latest data before update
-      await fetchOffices();
-      
-      // Re-check occupancy after refresh
-      const refreshedOffice = offices.find(o => o.id === selectedOffice.id);
-      if (!refreshedOffice || refreshedOffice.occupancy <= 0) {
-        toast({
-          title: "No vehicles to exit",
-          description: `${selectedOffice.name} parking is already empty.`,
-          variant: "destructive",
-        });
-        setIsUpdating(false);
-        return;
-      }
-      
-      // Attempt the update with version for optimistic concurrency
-      const newOccupancy = refreshedOffice.occupancy - 1;
-      const updatedOffice = await api.updateOffice(
-        selectedOffice.id, 
-        newOccupancy, 
-        refreshedOffice.version
-      );
-      
-      // Update local state
-      setOffices(offices.map(office => 
-        office.id === selectedOffice.id ? updatedOffice : office
-      ));
-      
-      setSelectedOffice(updatedOffice);
-      
-      // Record check-out activity
-      await recordActivity('check-out', updatedOffice.name);
-      
-    } catch (err: any) {
-      if (err.name === 'ConcurrencyError') {
-        // Handle CI-02: Concurrent update detected
-        toast({
-          title: "Update conflict",
-          description: "Someone else updated the count. Refreshing data.",
-          variant: "destructive",
-        });
-        // Refresh to get the latest state
-        fetchOffices();
-      } else {
-        // Handle CI-03: Database failure
-        toast({
-          title: "Unable to update—try again",
-          description: "Failed to update parking occupancy.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  // Retry loading offices
-  const handleRetry = () => {
-    setError(null);
-    fetchOffices();
-  };
-
+  // Handle loading state
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p>Loading offices...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <LoadingState />;
   }
 
+  // Handle error state
   if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Error</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Alert variant="destructive" className="mb-4">
-              <AlertTitle>Unable to load offices</AlertTitle>
-              <AlertDescription>
-                There was a problem loading the office data.
-              </AlertDescription>
-            </Alert>
-            <div className="text-center">
-              <Button onClick={handleRetry}>Retry</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ErrorState onRetry={fetchOffices} />;
   }
 
   return (
@@ -331,49 +61,13 @@ const SelectOffice = () => {
           </div>
           
           {selectedOffice && (
-            <div className="bg-white rounded-lg p-4 border">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-xl">{selectedOffice.name}</h3>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={fetchOffices} 
-                  disabled={isUpdating}
-                >
-                  <RefreshCcw className={isUpdating ? "animate-spin" : ""} />
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-gray-100 p-3 rounded">
-                  <div className="text-sm text-gray-500">Occupancy</div>
-                  <div className="text-2xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
-                </div>
-                <div className="bg-gray-100 p-3 rounded">
-                  <div className="text-sm text-gray-500">Available</div>
-                  <div className="text-2xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
-                </div>
-              </div>
-              
-              <div className="flex justify-center space-x-6">
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  disabled={selectedOffice.occupancy <= 0 || isUpdating}
-                  onClick={handleDecrement}
-                >
-                  <Minus className="mr-1" /> Exit
-                </Button>
-                
-                <Button 
-                  size="lg"
-                  disabled={selectedOffice.occupancy >= selectedOffice.capacity || isUpdating}
-                  onClick={handleIncrement}
-                >
-                  <Plus className="mr-1" /> Enter
-                </Button>
-              </div>
-            </div>
+            <OccupancyCounter
+              office={selectedOffice}
+              isUpdating={isUpdating}
+              onIncrement={handleIncrement}
+              onDecrement={handleDecrement}
+              onRefresh={fetchOffices}
+            />
           )}
         </CardContent>
       </Card>
