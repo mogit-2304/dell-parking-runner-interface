@@ -4,6 +4,7 @@ import { Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
+import { ActivityFeed } from './ActivityFeed';
 
 interface OfficeActionsProps {
   office: {
@@ -77,23 +78,29 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   };
 
   return (
-    <div className="flex justify-center space-x-6">
-      <Button 
-        size="lg"
-        variant="outline"
-        disabled={office.occupancy <= 0}
-        onClick={handleDecrement}
-      >
-        <Minus className="mr-1" /> Exit
-      </Button>
+    <div className="flex flex-col items-center">
+      <div className="flex flex-col space-y-4 mb-4 items-center">
+        <Button 
+          size="lg"
+          onClick={handleIncrement}
+          disabled={office.occupancy >= office.capacity}
+        >
+          <Plus className="mr-1" /> Enter
+        </Button>
+        
+        <Button 
+          size="lg"
+          variant="outline"
+          onClick={handleDecrement}
+          disabled={office.occupancy <= 0}
+        >
+          <Minus className="mr-1" /> Exit
+        </Button>
+      </div>
       
-      <Button 
-        size="lg"
-        disabled={office.occupancy >= office.capacity}
-        onClick={handleIncrement}
-      >
-        <Plus className="mr-1" /> Enter
-      </Button>
+      <div className="mt-2">
+        <ActivityFeed />
+      </div>
     </div>
   );
 };
