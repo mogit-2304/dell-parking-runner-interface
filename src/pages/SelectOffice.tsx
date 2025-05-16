@@ -40,13 +40,17 @@ const SelectOffice = () => {
         // Retrieve persisted data if available
         const persistedOffices = localStorage.getItem('offices');
         if (persistedOffices) {
-          setOffices(JSON.parse(persistedOffices));
+          const parsedOffices = JSON.parse(persistedOffices);
+          setOffices(parsedOffices);
+          console.log('Loaded offices from localStorage:', parsedOffices);
         } else {
           setOffices(mockOffices);
+          console.log('Using mock offices data:', mockOffices);
         }
         
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching offices:', err);
         setError('Unable to load offices');
         setLoading(false);
       }
@@ -60,12 +64,18 @@ const SelectOffice = () => {
     const office = offices.find(o => o.id === officeId);
     if (office) {
       setSelectedOffice(office);
+      console.log('Selected office:', office);
     }
   };
 
   // Handle occupancy update
   const handleOccupancyUpdate = (newOccupancy: number) => {
-    if (!selectedOffice) return;
+    if (!selectedOffice) {
+      console.error('Cannot update occupancy: No office selected');
+      return;
+    }
+    
+    console.log('Updating occupancy for', selectedOffice.name, 'from', selectedOffice.occupancy, 'to', newOccupancy);
     
     // Update occupancy
     const updatedOffices = offices.map(office => {
@@ -84,6 +94,13 @@ const SelectOffice = () => {
     
     // Persist changes
     localStorage.setItem('offices', JSON.stringify(updatedOffices));
+    console.log('Updated offices in localStorage:', updatedOffices);
+    
+    // Show toast notification for confirmation
+    toast({
+      title: newOccupancy > selectedOffice.occupancy ? "Vehicle Entered" : "Vehicle Exited",
+      description: `${selectedOffice.name} occupancy: ${newOccupancy}/${selectedOffice.capacity}`,
+    });
   };
 
   // Retry loading offices

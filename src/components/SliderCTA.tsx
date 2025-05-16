@@ -71,7 +71,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   };
   
   const handleDragEnd = () => {
-    if (disabled) return;
+    if (disabled || !isDragging) return;
     setIsDragging(false);
     
     // Consider it completed if dragged more than 80% of the way
@@ -87,7 +87,8 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
         navigator.vibrate(200);
       }
       
-      // Trigger the provided callback
+      // Execute the callback
+      console.log('SliderCTA: Triggering onComplete callback');
       onComplete();
       
     } else {
@@ -219,7 +220,11 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
           }}
           onMouseDown={disabled ? undefined : handleDragStart}
           onTouchStart={disabled ? undefined : handleDragStart}
-          onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+          onTouchMove={(e) => {
+            if (e.touches && e.touches[0]) {
+              handleDragMove(e.touches[0].clientX);
+            }
+          }}
           onTouchEnd={handleDragEnd}
         >
           {/* Button icon */}

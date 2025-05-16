@@ -38,7 +38,10 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       // Record the activity
       recordActivity('check-in', office.name);
       
+      console.log('Vehicle entered: New occupancy:', newOccupancy);
+      
     } catch (err) {
+      console.error('Error in handleIncrement:', err);
       toast({
         title: "Error updating occupancy",
         description: "Failed to update parking occupancy. Please try again.",
@@ -67,7 +70,10 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       // Record the activity
       recordActivity('check-out', office.name);
       
+      console.log('Vehicle exited: New occupancy:', newOccupancy);
+      
     } catch (err) {
+      console.error('Error in handleDecrement:', err);
       toast({
         title: "Error updating occupancy",
         description: "Failed to update parking occupancy. Please try again.",
