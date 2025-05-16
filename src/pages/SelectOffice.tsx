@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -6,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Minus } from 'lucide-react';
+import AppHeader from '@/components/AppHeader';
+import OfficeActions from '@/components/OfficeActions';
 
 // Types
 interface Office {
@@ -63,92 +63,27 @@ const SelectOffice = () => {
     }
   };
 
-  // Handle increment occupancy
-  const handleIncrement = async () => {
+  // Handle occupancy update
+  const handleOccupancyUpdate = (newOccupancy: number) => {
     if (!selectedOffice) return;
     
-    // Check if at capacity
-    if (selectedOffice.occupancy >= selectedOffice.capacity) {
-      toast({
-        title: "Parking full",
-        description: `${selectedOffice.name} parking is at capacity.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // In a real app, fetch latest count before update to handle PSU-06
-      await new Promise(resolve => setTimeout(resolve, 100)); // Simulate API delay
-      
-      // Update occupancy
-      const updatedOffices = offices.map(office => {
-        if (office.id === selectedOffice.id) {
-          return { ...office, occupancy: office.occupancy + 1 };
-        }
-        return office;
-      });
-      
-      // Update state
-      setOffices(updatedOffices);
-      setSelectedOffice({
-        ...selectedOffice,
-        occupancy: selectedOffice.occupancy + 1
-      });
-      
-      // Persist changes (PSU-07)
-      localStorage.setItem('offices', JSON.stringify(updatedOffices));
-    } catch (err) {
-      toast({
-        title: "Error updating occupancy",
-        description: "Failed to update parking occupancy. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Handle decrement occupancy
-  const handleDecrement = async () => {
-    if (!selectedOffice) return;
+    // Update occupancy
+    const updatedOffices = offices.map(office => {
+      if (office.id === selectedOffice.id) {
+        return { ...office, occupancy: newOccupancy };
+      }
+      return office;
+    });
     
-    // Check if at zero
-    if (selectedOffice.occupancy <= 0) {
-      toast({
-        title: "No vehicles to exit",
-        description: `${selectedOffice.name} parking is already empty.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // In a real app, fetch latest count before update
-      await new Promise(resolve => setTimeout(resolve, 100)); // Simulate API delay
-      
-      // Update occupancy
-      const updatedOffices = offices.map(office => {
-        if (office.id === selectedOffice.id) {
-          return { ...office, occupancy: office.occupancy - 1 };
-        }
-        return office;
-      });
-      
-      // Update state
-      setOffices(updatedOffices);
-      setSelectedOffice({
-        ...selectedOffice,
-        occupancy: selectedOffice.occupancy - 1
-      });
-      
-      // Persist changes
-      localStorage.setItem('offices', JSON.stringify(updatedOffices));
-    } catch (err) {
-      toast({
-        title: "Error updating occupancy",
-        description: "Failed to update parking occupancy. Please try again.",
-        variant: "destructive",
-      });
-    }
+    // Update state
+    setOffices(updatedOffices);
+    setSelectedOffice({
+      ...selectedOffice,
+      occupancy: newOccupancy
+    });
+    
+    // Persist changes
+    localStorage.setItem('offices', JSON.stringify(updatedOffices));
   };
 
   // Retry loading offices
@@ -164,101 +99,96 @@ const SelectOffice = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <p>Loading offices...</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-screen flex-col bg-gray-100">
+        <AppHeader />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md shadow-lg">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p>Loading offices...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Error</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Alert variant="destructive" className="mb-4">
-              <AlertTitle>Unable to load offices</AlertTitle>
-              <AlertDescription>
-                There was a problem loading the office data.
-              </AlertDescription>
-            </Alert>
-            <div className="text-center">
-              <Button onClick={handleRetry}>Retry</Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-screen flex-col bg-gray-100">
+        <AppHeader />
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">Error</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>Unable to load offices</AlertTitle>
+                <AlertDescription>
+                  There was a problem loading the office data.
+                </AlertDescription>
+              </Alert>
+              <div className="text-center">
+                <Button onClick={handleRetry}>Retry</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Select Office</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <label className="font-medium text-sm mb-2 block">Office Location</label>
-            <Select onValueChange={handleSelectOffice} defaultValue={selectedOffice?.id}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select an office" />
-              </SelectTrigger>
-              <SelectContent>
-                {offices.map(office => (
-                  <SelectItem key={office.id} value={office.id}>
-                    {office.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {selectedOffice && (
-            <div className="bg-white rounded-lg p-4 border">
-              <h3 className="font-bold text-xl mb-2">{selectedOffice.name}</h3>
-              
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-gray-100 p-3 rounded">
-                  <div className="text-sm text-gray-500">Occupancy</div>
-                  <div className="text-2xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
-                </div>
-                <div className="bg-gray-100 p-3 rounded">
-                  <div className="text-sm text-gray-500">Available</div>
-                  <div className="text-2xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
-                </div>
-              </div>
-              
-              <div className="flex justify-center space-x-6">
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  disabled={selectedOffice.occupancy <= 0}
-                  onClick={handleDecrement}
-                >
-                  <Minus className="mr-1" /> Exit
-                </Button>
-                
-                <Button 
-                  size="lg"
-                  disabled={selectedOffice.occupancy >= selectedOffice.capacity}
-                  onClick={handleIncrement}
-                >
-                  <Plus className="mr-1" /> Enter
-                </Button>
-              </div>
+    <div className="flex min-h-screen flex-col bg-gray-100">
+      <AppHeader />
+      <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Select Office</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <label className="font-medium text-sm mb-2 block">Office Location</label>
+              <Select onValueChange={handleSelectOffice} value={selectedOffice?.id || ""}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select an office" />
+                </SelectTrigger>
+                <SelectContent>
+                  {offices.map(office => (
+                    <SelectItem key={office.id} value={office.id}>
+                      {office.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            
+            {selectedOffice && (
+              <div className="bg-white rounded-lg p-4 border">
+                <h3 className="font-bold text-xl mb-2">{selectedOffice.name}</h3>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-gray-100 p-3 rounded">
+                    <div className="text-sm text-gray-500">Occupancy</div>
+                    <div className="text-2xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
+                  </div>
+                  <div className="bg-gray-100 p-3 rounded">
+                    <div className="text-sm text-gray-500">Available</div>
+                    <div className="text-2xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
+                  </div>
+                </div>
+                
+                <OfficeActions 
+                  office={selectedOffice} 
+                  onUpdate={handleOccupancyUpdate} 
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
