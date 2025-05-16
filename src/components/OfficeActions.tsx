@@ -33,12 +33,20 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
     try {
       // Update occupancy
       const newOccupancy = office.occupancy + 1;
+      
+      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
       onUpdate(newOccupancy);
       
       // Record the activity
       recordActivity('check-in', office.name);
       
       console.log('Vehicle entered: New occupancy:', newOccupancy);
+      
+      // Display toast confirmation
+      toast({
+        title: "Vehicle Entered",
+        description: `${office.name} occupancy: ${newOccupancy}/${office.capacity}`,
+      });
       
     } catch (err) {
       console.error('Error in handleIncrement:', err);
@@ -65,12 +73,20 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
     try {
       // Update occupancy
       const newOccupancy = office.occupancy - 1;
+      
+      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
       onUpdate(newOccupancy);
       
       // Record the activity
       recordActivity('check-out', office.name);
       
       console.log('Vehicle exited: New occupancy:', newOccupancy);
+      
+      // Display toast confirmation
+      toast({
+        title: "Vehicle Exited",
+        description: `${office.name} occupancy: ${newOccupancy}/${office.capacity}`,
+      });
       
     } catch (err) {
       console.error('Error in handleDecrement:', err);

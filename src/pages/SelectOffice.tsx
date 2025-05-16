@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -14,6 +15,7 @@ interface Office {
   name: string;
   capacity: number;
   occupancy: number;
+  version?: number;
 }
 
 // Mock data for offices
@@ -77,30 +79,28 @@ const SelectOffice = () => {
     
     console.log('Updating occupancy for', selectedOffice.name, 'from', selectedOffice.occupancy, 'to', newOccupancy);
     
-    // Update occupancy
+    // Create a versioned update to ensure we track changes
+    const versionedUpdate = {
+      ...selectedOffice,
+      occupancy: newOccupancy,
+      version: (selectedOffice.version || 0) + 1
+    };
+    
+    // Update offices state
     const updatedOffices = offices.map(office => {
       if (office.id === selectedOffice.id) {
-        return { ...office, occupancy: newOccupancy };
+        return versionedUpdate;
       }
       return office;
     });
     
     // Update state
     setOffices(updatedOffices);
-    setSelectedOffice({
-      ...selectedOffice,
-      occupancy: newOccupancy
-    });
+    setSelectedOffice(versionedUpdate);
     
     // Persist changes
     localStorage.setItem('offices', JSON.stringify(updatedOffices));
     console.log('Updated offices in localStorage:', updatedOffices);
-    
-    // Show toast notification for confirmation
-    toast({
-      title: newOccupancy > selectedOffice.occupancy ? "Vehicle Entered" : "Vehicle Exited",
-      description: `${selectedOffice.name} occupancy: ${newOccupancy}/${selectedOffice.capacity}`,
-    });
   };
 
   // Retry loading offices

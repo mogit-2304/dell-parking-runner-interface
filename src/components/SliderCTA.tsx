@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
@@ -89,7 +88,11 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       
       // Execute the callback
       console.log('SliderCTA: Triggering onComplete callback');
-      onComplete();
+      
+      // Ensure the callback is triggered after the state updates
+      setTimeout(() => {
+        onComplete();
+      }, 10);
       
     } else {
       // Reset if not dragged enough
