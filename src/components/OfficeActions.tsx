@@ -1,9 +1,7 @@
 
 import React from 'react';
-import { Minus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
+import { toast } from '@/hooks/use-toast';
 import { ActivityFeed } from './ActivityFeed';
 import SliderCTA from './SliderCTA';
 
@@ -91,14 +89,16 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
           />
         </div>
         
-        <Button 
-          size="lg"
-          variant="outline"
-          onClick={handleDecrement}
-          disabled={office.occupancy <= 0}
-        >
-          <Minus className="mr-1" /> Exit
-        </Button>
+        <div className="w-full">
+          <SliderCTA
+            onComplete={handleDecrement}
+            slideText="← Slide to Exit"
+            releaseText="Release to Exit"
+            successText="Vehicle Exited"
+            disabled={office.occupancy <= 0}
+            direction="rtl"
+          />
+        </div>
       </div>
       
       <div className="mt-2">

@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface SliderCTAProps {
   onComplete: () => void;
@@ -10,6 +10,7 @@ interface SliderCTAProps {
   accentColor?: string;
   successHoldTime?: number;
   disabled?: boolean;
+  direction?: 'ltr' | 'rtl'; // Left to right (default) or right to left
 }
 
 const SliderCTA: React.FC<SliderCTAProps> = ({
@@ -20,6 +21,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   accentColor = "#0937b2", // Using the brand primary color
   successHoldTime = 1000,
   disabled = false,
+  direction = 'ltr', // Default is left to right
 }) => {
   const [offsetX, setOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -51,9 +53,20 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
     if (!isDragging || !sliderRef.current || disabled) return;
     
     const rect = sliderRef.current.getBoundingClientRect();
-    const relativeX = clientX - rect.left;
-    // Subtracting half the button width to center the drag point on cursor
-    const newOffset = Math.max(0, Math.min(relativeX - buttonSize/2, maxDragDistance));
+    let newOffset;
+    
+    if (direction === 'ltr') {
+      // Left to right sliding
+      const relativeX = clientX - rect.left;
+      // Subtracting half the button width to center the drag point on cursor
+      newOffset = Math.max(0, Math.min(relativeX - buttonSize/2, maxDragDistance));
+    } else {
+      // Right to left sliding
+      const relativeX = rect.right - clientX;
+      // Subtracting half the button width to center the drag point on cursor
+      newOffset = Math.max(0, Math.min(relativeX - buttonSize/2, maxDragDistance));
+    }
+    
     setOffsetX(newOffset);
   };
   
@@ -111,6 +124,36 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging]);
+
+  // Determine button position based on direction
+  const getButtonStyle = () => {
+    if (direction === 'ltr') {
+      return {
+        left: 0,
+        transform: `translateX(${offsetX}px)`,
+      };
+    } else {
+      return {
+        right: 0,
+        transform: `translateX(-${offsetX}px)`,
+      };
+    }
+  };
+
+  // Determine progress bar style based on direction
+  const getProgressStyle = () => {
+    if (direction === 'ltr') {
+      return {
+        left: 0,
+        width: `${completionPercent}%`,
+      };
+    } else {
+      return {
+        right: 0,
+        width: `${completionPercent}%`,
+      };
+    }
+  };
   
   return (
     <div className={`flex justify-center items-center w-full ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
@@ -131,7 +174,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
         aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
         onKeyDown={(e) => {
-          if ((e.key === 'ArrowRight' || e.key === 'Enter') && !disabled) {
+          if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Enter') && !disabled) {
             setOffsetX(maxDragDistance);
             handleDragEnd();
           }
@@ -139,9 +182,9 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       >
         {/* Slider background progress */}
         <div 
-          className="absolute top-0 left-0 h-full transition-all duration-100"
+          className="absolute top-0 h-full transition-all duration-100"
           style={{ 
-            width: `${completionPercent}%`,
+            ...getProgressStyle(),
             backgroundColor: `${accentColor}30`
           }}
         />
@@ -164,12 +207,12 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       
         {/* Draggable button */}
         <div
-          className={`absolute left-0 top-0 flex justify-center items-center h-16 w-16 rounded-full cursor-grab ${
+          className={`absolute top-0 flex justify-center items-center h-16 w-16 rounded-full cursor-grab ${
             isDragging ? 'cursor-grabbing shadow-lg scale-105' : ''
           } ${disabled ? 'cursor-not-allowed' : ''}`}
           style={{ 
             backgroundColor: accentColor,
-            transform: `translateX(${offsetX}px)`,
+            ...getButtonStyle(),
             transition: isDragging ? 'none' : 'transform 0.15s ease, box-shadow 0.2s ease, scale 0.2s ease',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
             willChange: 'transform',
@@ -184,7 +227,11 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
             {hasCompleted ? (
               <Check className="h-6 w-6" />
             ) : (
-              <ChevronRight className="h-6 w-6" />
+              direction === 'ltr' ? (
+                <ChevronRight className="h-6 w-6" />
+              ) : (
+                <ChevronLeft className="h-6 w-6" />
+              )
             )}
           </div>
         </div>
