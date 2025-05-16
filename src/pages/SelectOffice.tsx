@@ -49,9 +49,8 @@ const SelectOffice = () => {
             <Select 
               onValueChange={handleSelectOffice} 
               value={selectedOffice?.id || ""}
-              defaultValue=""
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select an office" />
               </SelectTrigger>
               <SelectContent>

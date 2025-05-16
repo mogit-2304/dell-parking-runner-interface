@@ -16,7 +16,16 @@ export const useOfficeManagement = () => {
   const fetchOffices = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null); // Clear any previous errors before fetching
+      
       const latestOffices = await officeService.getOffices();
+      
+      if (latestOffices.length === 0) {
+        setError('No offices found');
+        setLoading(false);
+        return;
+      }
+      
       setOffices(latestOffices);
       
       // Update selected office if it exists
@@ -28,8 +37,8 @@ export const useOfficeManagement = () => {
       }
       
       setLoading(false);
-      setError(null); // Clear any previous errors
     } catch (err) {
+      console.error('Error fetching offices:', err);
       setError('Unable to load offices');
       setLoading(false);
     }
@@ -49,11 +58,13 @@ export const useOfficeManagement = () => {
 
   // Handle office selection
   const handleSelectOffice = useCallback((officeId: string) => {
+    console.log('Selected office ID:', officeId);
     // Find the office by ID in the current offices array
     const office = offices.find(o => o.id === officeId);
     if (office) {
       // Set the selected office state with the found office object
       setSelectedOffice(office);
+      console.log('Selected office:', office);
     } else {
       console.error(`Office with ID ${officeId} not found`);
     }
