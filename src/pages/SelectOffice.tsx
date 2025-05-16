@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -7,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Minus, RefreshCcw } from 'lucide-react';
+import RecentActivityDropdown from '@/components/RecentActivityDropdown';
+import { activityService } from '@/services/activityService';
 
 // Types
 interface Office {
@@ -44,11 +45,6 @@ const api = {
     if (!office) {
       throw new Error('Office not found');
     }
-
-    // For CI-03: Simulate occasional DB failure (uncomment for testing)
-    // if (Math.random() < 0.2) {
-    //   throw new Error('Database error');
-    // }
 
     // For CI-01/CI-02: Version check for concurrency control
     if (version !== undefined && office.version !== version) {
@@ -109,6 +105,18 @@ const SelectOffice = () => {
     }
   };
 
+  // Record activity
+  const recordActivity = async (type: 'check-in' | 'check-out', officeName: string) => {
+    try {
+      await activityService.addActivity({
+        type,
+        officeName
+      });
+    } catch (err) {
+      console.error('Failed to record activity:', err);
+    }
+  };
+
   // Handle increment occupancy
   const handleIncrement = async () => {
     if (!selectedOffice || isUpdating) return;
@@ -155,6 +163,9 @@ const SelectOffice = () => {
       ));
       
       setSelectedOffice(updatedOffice);
+      
+      // Record check-in activity
+      await recordActivity('check-in', updatedOffice.name);
       
     } catch (err: any) {
       if (err.name === 'ConcurrencyError') {
@@ -226,6 +237,9 @@ const SelectOffice = () => {
       
       setSelectedOffice(updatedOffice);
       
+      // Record check-out activity
+      await recordActivity('check-out', updatedOffice.name);
+      
     } catch (err: any) {
       if (err.name === 'ConcurrencyError') {
         // Handle CI-02: Concurrent update detected
@@ -295,8 +309,9 @@ const SelectOffice = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Select Office</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-2xl font-bold">Select Office</CardTitle>
+          <RecentActivityDropdown />
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
