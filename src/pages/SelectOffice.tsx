@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, RefreshCcw } from 'lucide-react';
 
 // Types
 interface Office {
@@ -14,13 +14,58 @@ interface Office {
   name: string;
   capacity: number;
   occupancy: number;
+  version?: number; // Version for optimistic concurrency control
 }
 
 // Mock data for offices
 const mockOffices: Office[] = [
-  { id: 'hq', name: 'Dell HQ', capacity: 50, occupancy: 10 },
-  { id: 'main', name: 'Dell Main', capacity: 156, occupancy: 20 }
+  { id: 'hq', name: 'Dell HQ', capacity: 50, occupancy: 10, version: 1 },
+  { id: 'main', name: 'Dell Main', capacity: 156, occupancy: 20, version: 1 }
 ];
+
+// Simulated API functions with concurrency handling
+const api = {
+  // Simulate getting latest office data
+  getOffices: async (): Promise<Office[]> => {
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    const persistedOffices = localStorage.getItem('offices');
+    return persistedOffices ? JSON.parse(persistedOffices) : mockOffices;
+  },
+
+  // Simulate updating office with version check (optimistic concurrency control)
+  updateOffice: async (officeId: string, newOccupancy: number, version: number | undefined): Promise<Office> => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    // Get current state
+    const offices = JSON.parse(localStorage.getItem('offices') || JSON.stringify(mockOffices));
+    const office = offices.find((o: Office) => o.id === officeId);
+    
+    if (!office) {
+      throw new Error('Office not found');
+    }
+
+    // For CI-03: Simulate occasional DB failure (uncomment for testing)
+    // if (Math.random() < 0.2) {
+    //   throw new Error('Database error');
+    // }
+
+    // For CI-01/CI-02: Version check for concurrency control
+    if (version !== undefined && office.version !== version) {
+      // Return a specific error for concurrency conflicts
+      const error = new Error('Conflict: Office data was updated by another user');
+      error.name = 'ConcurrencyError';
+      throw error;
+    }
+
+    // Update and save
+    office.occupancy = newOccupancy;
+    office.version = (office.version || 0) + 1;
+    
+    localStorage.setItem('offices', JSON.stringify(offices));
+    return office;
+  }
+};
 
 const SelectOffice = () => {
   const navigate = useNavigate();
@@ -28,30 +73,31 @@ const SelectOffice = () => {
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   // Fetch offices data
-  useEffect(() => {
-    const fetchOffices = async () => {
-      try {
-        setLoading(true);
-        // In a real app, this would be an API call
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-        
-        // Retrieve persisted data if available
-        const persistedOffices = localStorage.getItem('offices');
-        if (persistedOffices) {
-          setOffices(JSON.parse(persistedOffices));
-        } else {
-          setOffices(mockOffices);
+  const fetchOffices = async () => {
+    try {
+      setLoading(true);
+      const latestOffices = await api.getOffices();
+      setOffices(latestOffices);
+      
+      // Update selected office if it exists
+      if (selectedOffice) {
+        const updatedSelectedOffice = latestOffices.find(o => o.id === selectedOffice.id);
+        if (updatedSelectedOffice) {
+          setSelectedOffice(updatedSelectedOffice);
         }
-        
-        setLoading(false);
-      } catch (err) {
-        setError('Unable to load offices');
-        setLoading(false);
       }
-    };
+      
+      setLoading(false);
+    } catch (err) {
+      setError('Unable to load offices');
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchOffices();
   }, []);
 
@@ -65,7 +111,7 @@ const SelectOffice = () => {
 
   // Handle increment occupancy
   const handleIncrement = async () => {
-    if (!selectedOffice) return;
+    if (!selectedOffice || isUpdating) return;
     
     // Check if at capacity
     if (selectedOffice.occupancy >= selectedOffice.capacity) {
@@ -78,38 +124,64 @@ const SelectOffice = () => {
     }
 
     try {
-      // In a real app, fetch latest count before update to handle PSU-06
-      await new Promise(resolve => setTimeout(resolve, 100)); // Simulate API delay
+      setIsUpdating(true);
       
-      // Update occupancy
-      const updatedOffices = offices.map(office => {
-        if (office.id === selectedOffice.id) {
-          return { ...office, occupancy: office.occupancy + 1 };
-        }
-        return office;
-      });
+      // Get latest office data before update to handle PSU-06
+      await fetchOffices();
       
-      // Update state
-      setOffices(updatedOffices);
-      setSelectedOffice({
-        ...selectedOffice,
-        occupancy: selectedOffice.occupancy + 1
-      });
+      // Re-check capacity after refresh
+      const refreshedOffice = offices.find(o => o.id === selectedOffice.id);
+      if (!refreshedOffice || refreshedOffice.occupancy >= refreshedOffice.capacity) {
+        toast({
+          title: "Parking full",
+          description: `${selectedOffice.name} parking is at capacity.`,
+          variant: "destructive",
+        });
+        setIsUpdating(false);
+        return;
+      }
       
-      // Persist changes (PSU-07)
-      localStorage.setItem('offices', JSON.stringify(updatedOffices));
-    } catch (err) {
-      toast({
-        title: "Error updating occupancy",
-        description: "Failed to update parking occupancy. Please try again.",
-        variant: "destructive",
-      });
+      // Attempt the update with version for optimistic concurrency
+      const newOccupancy = refreshedOffice.occupancy + 1;
+      const updatedOffice = await api.updateOffice(
+        selectedOffice.id, 
+        newOccupancy, 
+        refreshedOffice.version
+      );
+      
+      // Update state with the new office data
+      setOffices(offices.map(office => 
+        office.id === selectedOffice.id ? updatedOffice : office
+      ));
+      
+      setSelectedOffice(updatedOffice);
+      
+    } catch (err: any) {
+      if (err.name === 'ConcurrencyError') {
+        // Handle CI-01: Concurrent update detected
+        toast({
+          title: "Update conflict",
+          description: "Someone else updated the count. Refreshing data.",
+          variant: "destructive",
+        });
+        // Refresh to get the latest state
+        fetchOffices();
+      } else {
+        // Handle CI-03: Database failure
+        toast({
+          title: "Unable to update—try again",
+          description: "Failed to update parking occupancy.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   // Handle decrement occupancy
   const handleDecrement = async () => {
-    if (!selectedOffice) return;
+    if (!selectedOffice || isUpdating) return;
     
     // Check if at zero
     if (selectedOffice.occupancy <= 0) {
@@ -122,44 +194,65 @@ const SelectOffice = () => {
     }
 
     try {
-      // In a real app, fetch latest count before update
-      await new Promise(resolve => setTimeout(resolve, 100)); // Simulate API delay
+      setIsUpdating(true);
       
-      // Update occupancy
-      const updatedOffices = offices.map(office => {
-        if (office.id === selectedOffice.id) {
-          return { ...office, occupancy: office.occupancy - 1 };
-        }
-        return office;
-      });
+      // Get latest data before update
+      await fetchOffices();
       
-      // Update state
-      setOffices(updatedOffices);
-      setSelectedOffice({
-        ...selectedOffice,
-        occupancy: selectedOffice.occupancy - 1
-      });
+      // Re-check occupancy after refresh
+      const refreshedOffice = offices.find(o => o.id === selectedOffice.id);
+      if (!refreshedOffice || refreshedOffice.occupancy <= 0) {
+        toast({
+          title: "No vehicles to exit",
+          description: `${selectedOffice.name} parking is already empty.`,
+          variant: "destructive",
+        });
+        setIsUpdating(false);
+        return;
+      }
       
-      // Persist changes
-      localStorage.setItem('offices', JSON.stringify(updatedOffices));
-    } catch (err) {
-      toast({
-        title: "Error updating occupancy",
-        description: "Failed to update parking occupancy. Please try again.",
-        variant: "destructive",
-      });
+      // Attempt the update with version for optimistic concurrency
+      const newOccupancy = refreshedOffice.occupancy - 1;
+      const updatedOffice = await api.updateOffice(
+        selectedOffice.id, 
+        newOccupancy, 
+        refreshedOffice.version
+      );
+      
+      // Update local state
+      setOffices(offices.map(office => 
+        office.id === selectedOffice.id ? updatedOffice : office
+      ));
+      
+      setSelectedOffice(updatedOffice);
+      
+    } catch (err: any) {
+      if (err.name === 'ConcurrencyError') {
+        // Handle CI-02: Concurrent update detected
+        toast({
+          title: "Update conflict",
+          description: "Someone else updated the count. Refreshing data.",
+          variant: "destructive",
+        });
+        // Refresh to get the latest state
+        fetchOffices();
+      } else {
+        // Handle CI-03: Database failure
+        toast({
+          title: "Unable to update—try again",
+          description: "Failed to update parking occupancy.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   // Retry loading offices
   const handleRetry = () => {
     setError(null);
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setOffices(mockOffices);
-      setLoading(false);
-    }, 500);
+    fetchOffices();
   };
 
   if (loading) {
@@ -224,7 +317,17 @@ const SelectOffice = () => {
           
           {selectedOffice && (
             <div className="bg-white rounded-lg p-4 border">
-              <h3 className="font-bold text-xl mb-2">{selectedOffice.name}</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold text-xl">{selectedOffice.name}</h3>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={fetchOffices} 
+                  disabled={isUpdating}
+                >
+                  <RefreshCcw className={isUpdating ? "animate-spin" : ""} />
+                </Button>
+              </div>
               
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-gray-100 p-3 rounded">
@@ -241,7 +344,7 @@ const SelectOffice = () => {
                 <Button 
                   size="lg"
                   variant="outline"
-                  disabled={selectedOffice.occupancy <= 0}
+                  disabled={selectedOffice.occupancy <= 0 || isUpdating}
                   onClick={handleDecrement}
                 >
                   <Minus className="mr-1" /> Exit
@@ -249,7 +352,7 @@ const SelectOffice = () => {
                 
                 <Button 
                   size="lg"
-                  disabled={selectedOffice.occupancy >= selectedOffice.capacity}
+                  disabled={selectedOffice.occupancy >= selectedOffice.capacity || isUpdating}
                   onClick={handleIncrement}
                 >
                   <Plus className="mr-1" /> Enter
