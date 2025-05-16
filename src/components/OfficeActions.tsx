@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { toast } from '@/hooks/use-toast';
 import { ActivityFeed } from './ActivityFeed';
@@ -18,6 +18,11 @@ interface OfficeActionsProps {
 const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
 
+  // Debug on initial render and when office changes
+  useEffect(() => {
+    console.log('OfficeActions rendered with office:', office);
+  }, [office]);
+
   // Handle increment occupancy (check-in)
   const handleIncrement = async () => {
     // Check if at capacity
@@ -34,13 +39,13 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       // Update occupancy
       const newOccupancy = office.occupancy + 1;
       
-      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
-      onUpdate(newOccupancy);
+      console.log('handleIncrement called - Current:', office.occupancy, 'New:', newOccupancy);
       
       // Record the activity
       recordActivity('check-in', office.name);
       
-      console.log('Vehicle entered: New occupancy:', newOccupancy);
+      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
+      onUpdate(newOccupancy);
       
       // Display toast confirmation
       toast({
@@ -74,13 +79,13 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       // Update occupancy
       const newOccupancy = office.occupancy - 1;
       
-      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
-      onUpdate(newOccupancy);
+      console.log('handleDecrement called - Current:', office.occupancy, 'New:', newOccupancy);
       
       // Record the activity
       recordActivity('check-out', office.name);
       
-      console.log('Vehicle exited: New occupancy:', newOccupancy);
+      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
+      onUpdate(newOccupancy);
       
       // Display toast confirmation
       toast({

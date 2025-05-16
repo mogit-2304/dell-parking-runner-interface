@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,8 +70,8 @@ const SelectOffice = () => {
     }
   };
 
-  // Handle occupancy update
-  const handleOccupancyUpdate = (newOccupancy: number) => {
+  // Handle occupancy update - using useCallback to maintain stable reference
+  const handleOccupancyUpdate = useCallback((newOccupancy: number) => {
     if (!selectedOffice) {
       console.error('Cannot update occupancy: No office selected');
       return;
@@ -87,21 +87,25 @@ const SelectOffice = () => {
     };
     
     // Update offices state
-    const updatedOffices = offices.map(office => {
-      if (office.id === selectedOffice.id) {
-        return versionedUpdate;
-      }
-      return office;
+    setOffices(prevOffices => {
+      const updatedOffices = prevOffices.map(office => {
+        if (office.id === selectedOffice.id) {
+          return versionedUpdate;
+        }
+        return office;
+      });
+      
+      // Persist changes in localStorage immediately
+      localStorage.setItem('offices', JSON.stringify(updatedOffices));
+      console.log('Updated offices in localStorage:', updatedOffices);
+      
+      return updatedOffices;
     });
     
-    // Update state
-    setOffices(updatedOffices);
+    // Update selected office separately
     setSelectedOffice(versionedUpdate);
     
-    // Persist changes
-    localStorage.setItem('offices', JSON.stringify(updatedOffices));
-    console.log('Updated offices in localStorage:', updatedOffices);
-  };
+  }, [selectedOffice]);
 
   // Retry loading offices
   const handleRetry = () => {

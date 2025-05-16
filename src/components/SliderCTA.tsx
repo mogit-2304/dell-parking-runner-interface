@@ -29,6 +29,12 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   const buttonSize = 64; // Button width (16 * 4 = 64px)
   const containerWidth = 288; // w-72 = 18rem = 288px
   const maxDragDistance = containerWidth - buttonSize; // Maximum drag distance
+  const onCompleteRef = useRef(onComplete);
+  
+  // Update ref when onComplete changes
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
   
   // Reset after completion
   useEffect(() => {
@@ -89,10 +95,11 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       // Execute the callback
       console.log('SliderCTA: Triggering onComplete callback');
       
-      // Ensure the callback is triggered after the state updates
-      setTimeout(() => {
-        onComplete();
-      }, 10);
+      // Use a direct callback for guaranteed execution
+      window.requestAnimationFrame(() => {
+        console.log('SliderCTA: Executing onComplete inside requestAnimationFrame');
+        onCompleteRef.current();
+      });
       
     } else {
       // Reset if not dragged enough
