@@ -46,7 +46,11 @@ const SelectOffice = () => {
         <CardContent className="space-y-6">
           <div>
             <label className="font-medium text-sm mb-2 block">Office Location</label>
-            <Select onValueChange={handleSelectOffice} defaultValue={selectedOffice?.id}>
+            <Select 
+              onValueChange={handleSelectOffice} 
+              value={selectedOffice?.id || ""}
+              defaultValue=""
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select an office" />
               </SelectTrigger>

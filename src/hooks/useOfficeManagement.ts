@@ -28,6 +28,7 @@ export const useOfficeManagement = () => {
       }
       
       setLoading(false);
+      setError(null); // Clear any previous errors
     } catch (err) {
       setError('Unable to load offices');
       setLoading(false);
@@ -48,9 +49,13 @@ export const useOfficeManagement = () => {
 
   // Handle office selection
   const handleSelectOffice = useCallback((officeId: string) => {
+    // Find the office by ID in the current offices array
     const office = offices.find(o => o.id === officeId);
     if (office) {
+      // Set the selected office state with the found office object
       setSelectedOffice(office);
+    } else {
+      console.error(`Office with ID ${officeId} not found`);
     }
   }, [offices]);
 
