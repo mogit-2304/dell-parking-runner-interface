@@ -27,11 +27,19 @@ interface OfficeActionsProps {
 
 const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
+  const [entryCount, setEntryCount] = useState(0);
+  const [exitCount, setExitCount] = useState(0);
 
   // Debug on initial render and when office changes
   useEffect(() => {
     console.log('OfficeActions rendered with office:', office);
   }, [office]);
+
+  // Reset counters when office changes
+  useEffect(() => {
+    setEntryCount(office.occupancy);
+    setExitCount(office.capacity - office.occupancy);
+  }, [office.id, office.occupancy, office.capacity]);
 
   // Handle increment occupancy (check-in)
   const handleIncrement = async () => {
@@ -55,6 +63,9 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       // Record the activity
       recordActivity('check-in', office.name);
+      
+      // Update the entry counter
+      setEntryCount(prevCount => prevCount + 1);
       
       // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
       console.log('About to call onUpdate with newOccupancy:', newOccupancy);
@@ -99,6 +110,9 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       // Record the activity
       recordActivity('check-out', office.name);
       
+      // Update the exit counter
+      setExitCount(prevCount => prevCount + 1);
+      
       // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
       console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
@@ -133,6 +147,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
             successText="Vehicle Entered"
             disabled={office.occupancy >= office.capacity}
             showDebugInfo={showDebugInfo}
+            counter={entryCount} // Pass the entry counter
           />
         </div>
         
@@ -148,6 +163,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
             disabled={office.occupancy <= 0}
             direction="rtl"
             showDebugInfo={showDebugInfo}
+            counter={exitCount} // Pass the exit counter
           />
         </div>
       </div>

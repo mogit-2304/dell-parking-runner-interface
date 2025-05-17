@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, ChevronRight, ChevronLeft, Bug } from 'lucide-react';
 
@@ -12,6 +11,7 @@ interface SliderCTAProps {
   disabled?: boolean;
   direction?: 'ltr' | 'rtl'; // Left to right (default) or right to left
   showDebugInfo?: boolean; // New prop for toggling debug panel
+  counter?: number; // External counter value
 }
 
 const SliderCTA: React.FC<SliderCTAProps> = ({
@@ -24,12 +24,12 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   disabled = false,
   direction = 'ltr', // Default is left to right
   showDebugInfo = false, // Default hidden
+  counter = 0, // Default to 0 if not provided
 }) => {
   const [offsetX, setOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasTriggeredCallback, setHasTriggeredCallback] = useState(false);
-  const [counter, setCounter] = useState(0); // Success counter
   const sliderRef = useRef<HTMLDivElement>(null);
   const buttonSize = 64; // Button width (16 * 4 = 64px)
   const containerWidth = 288; // w-72 = 18rem = 288px
@@ -47,9 +47,6 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       // Only trigger the callback once per completion
       if (!hasTriggeredCallback) {
         console.log('SliderCTA: Executing onComplete inside effect');
-        
-        // Increment counter
-        setCounter(prevCount => prevCount + 1);
         
         // Small delay to ensure UI is updated before callback
         setTimeout(() => {
