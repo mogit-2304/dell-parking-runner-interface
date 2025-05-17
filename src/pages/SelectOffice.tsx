@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -190,10 +189,7 @@ const SelectOffice = () => {
       <AppHeader />
       <div className="flex-1 p-4">
         <Card className="w-full max-w-4xl mx-auto shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Parking Management</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="mb-6">
               <label className="font-medium text-sm mb-2 block">Office Location</label>
               <Select onValueChange={handleSelectOffice} value={selectedOffice?.id || ""}>
