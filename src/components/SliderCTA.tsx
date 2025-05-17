@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, ChevronRight, ChevronLeft, Bug } from 'lucide-react';
 
@@ -34,6 +35,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   const buttonSize = 64; // Button width (16 * 4 = 64px)
   const containerWidth = 288; // w-72 = 18rem = 288px
   const maxDragDistance = containerWidth - buttonSize; // Maximum drag distance
+  const completionThreshold = 224; // New threshold at 224px for action triggering
   const onCompleteRef = useRef(onComplete);
   
   // Update ref when onComplete changes
@@ -91,26 +93,39 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
     }
     
     setOffsetX(newOffset);
-  };
-  
-  const handleDragEnd = () => {
-    if (disabled || !isDragging) return;
-    setIsDragging(false);
     
-    // Consider it completed if dragged more than 80% of the way
-    const completionThreshold = maxDragDistance * 0.8;
-    
-    if (offsetX >= completionThreshold) {
-      // Success - action triggered
+    // Check if we've reached the completion threshold while dragging
+    if (newOffset >= completionThreshold && !hasCompleted) {
       setHasCompleted(true);
-      setOffsetX(maxDragDistance); // Snap to the end
       
       // Trigger haptic feedback if available
       if ('vibrate' in navigator) {
         navigator.vibrate(200);
       }
       
-      console.log('SliderCTA: Drag completed successfully');
+      console.log('SliderCTA: Drag reached threshold while dragging');
+    }
+  };
+  
+  const handleDragEnd = () => {
+    if (disabled || !isDragging) return;
+    setIsDragging(false);
+    
+    // Consider it completed if already marked as completed or if dragged past threshold
+    if (hasCompleted || offsetX >= completionThreshold) {
+      // Success - action triggered
+      if (!hasCompleted) {
+        setHasCompleted(true);
+        
+        // Trigger haptic feedback if available
+        if ('vibrate' in navigator) {
+          navigator.vibrate(200);
+        }
+        
+        console.log('SliderCTA: Drag completed successfully on release');
+      }
+      setOffsetX(maxDragDistance); // Snap to the end
+      
       // The callback will be triggered in the useEffect
     } else {
       // Reset if not dragged enough
@@ -193,6 +208,9 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
           
           <div>Completion:</div>
           <div>{Math.round(completionPercent)}%</div>
+          
+          <div>Threshold:</div>
+          <div>{completionThreshold}px ({Math.round((completionThreshold/maxDragDistance) * 100)}%)</div>
           
           <div>State:</div>
           <div>
