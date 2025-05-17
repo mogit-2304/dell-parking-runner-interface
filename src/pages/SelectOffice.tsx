@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import AppHeader from '@/components/AppHeader';
 import OfficeActions from '@/components/OfficeActions';
 import LanguageSelector from '@/components/LanguageSelector';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Types
 interface Office {
@@ -28,11 +29,11 @@ const mockOffices: Office[] = [
 
 const SelectOffice = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [offices, setOffices] = useState<Office[]>([]);
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // Setting showDebugInfo to false by default and removing the toggle function
   const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
 
   // Fetch offices data
@@ -126,11 +127,11 @@ const SelectOffice = () => {
     
     // Display toast for debugging
     toast({
-      title: "Office Updated",
-      description: `${selectedOffice.name} occupancy updated to ${newOccupancy}`,
+      title: t('officeUpdated'),
+      description: t('occupancyUpdated', selectedOffice.name, newOccupancy),
     });
     
-  }, [selectedOffice]);
+  }, [selectedOffice, t]);
 
   // Retry loading offices
   const handleRetry = () => {
@@ -205,12 +206,12 @@ const SelectOffice = () => {
           <CardContent className="space-y-6 pt-6">
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <label className="font-medium text-sm block">Office Location</label>
+                <label className="font-medium text-sm block">{t('officeLocation')}</label>
                 <LanguageSelector />
               </div>
               <Select onValueChange={handleSelectOffice} value={selectedOffice?.id || ""}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select an office" />
+                  <SelectValue placeholder={t('selectOffice')} />
                 </SelectTrigger>
                 <SelectContent>
                   {offices.map(office => (
@@ -226,19 +227,18 @@ const SelectOffice = () => {
               <div className="space-y-6">
                 <div className="bg-white rounded-lg p-6 border shadow-sm">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-xl">{selectedOffice.name} Parking Status</h3>
-                    {/* Removed the Show Debug button */}
+                    <h3 className="font-bold text-xl">{t('parkingStatus', selectedOffice.name)}</h3>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">Current Parking Occupancy</div>
+                      <div className="text-sm text-gray-500 mb-1">{t('currentOccupancy')}</div>
                       <div className="flex justify-between items-center">
                         <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
                         <div className="text-sm text-gray-500">
                           {selectedOffice.occupancy === selectedOffice.capacity 
-                            ? "Parking is full" 
-                            : `${Math.round((selectedOffice.occupancy / selectedOffice.capacity) * 100)}% occupied`
+                            ? t('parkingFull')
+                            : t('occupiedPercentage', Math.round((selectedOffice.occupancy / selectedOffice.capacity) * 100))
                           }
                         </div>
                       </div>
@@ -257,13 +257,13 @@ const SelectOffice = () => {
                     </div>
                     
                     <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">Available Parking Slots</div>
+                      <div className="text-sm text-gray-500 mb-1">{t('availableSlots')}</div>
                       <div className="flex justify-between items-center">
                         <div className="text-3xl font-bold text-green-600">{selectedOffice.capacity - selectedOffice.occupancy}</div>
                         <div className="text-sm text-green-600">
                           {selectedOffice.capacity - selectedOffice.occupancy === 0
-                            ? "No spaces available"
-                            : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
+                            ? t('noSpaces')
+                            : t('availablePercentage', Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100))
                           }
                         </div>
                       </div>
@@ -271,7 +271,7 @@ const SelectOffice = () => {
                   </div>
                   
                   <div className="bg-gray-50 p-6 rounded-lg border">
-                    <h4 className="font-semibold text-lg mb-4">Vehicle Entry/Exit</h4>
+                    <h4 className="font-semibold text-lg mb-4">{t('vehicleEntryExit')}</h4>
                     <OfficeActions 
                       office={selectedOffice} 
                       onUpdate={handleOccupancyUpdate}
@@ -282,7 +282,7 @@ const SelectOffice = () => {
               </div>
             ) : (
               <div className="text-center py-10 bg-gray-50 rounded-lg border">
-                <p className="text-gray-500">Please select an office to manage parking</p>
+                <p className="text-gray-500">{t('pleaseSelectOffice')}</p>
               </div>
             )}
           </CardContent>

@@ -1,27 +1,28 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LanguageSelectorProps {
   className?: string;
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ className }) => {
-  const [language, setLanguage] = useState('english');
+  const { language, setLanguage } = useLanguage();
 
   const handleLanguageChange = (value: string) => {
-    setLanguage(value);
-    // In a real app, we would update the i18n context here
+    setLanguage(value as 'english' | 'kannada');
     console.log('Language changed to:', value);
+    // Store the language preference in localStorage for persistence
+    localStorage.setItem('language-preference', value);
   };
 
   return (

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { toast } from '@/hooks/use-toast';
@@ -12,6 +11,7 @@ import {
   DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface OfficeActionsProps {
   office: {
@@ -21,11 +21,12 @@ interface OfficeActionsProps {
     occupancy: number;
   };
   onUpdate: (newOccupancy: number) => void;
-  showDebugInfo?: boolean; // Keeping prop but will set a default value
+  showDebugInfo?: boolean;
 }
 
 const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
+  const { t } = useTranslation();
   const [entryCount, setEntryCount] = useState(0);
   const [exitCount, setExitCount] = useState(0);
 
@@ -61,8 +62,8 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
     // Check if at capacity
     if (office.occupancy >= office.capacity) {
       toast({
-        title: "Parking full",
-        description: `${office.name} parking is at capacity.`,
+        title: t('parkingFull'),
+        description: t('parkingAtCapacity', office.name),
         variant: "destructive",
       });
       return;
@@ -86,15 +87,15 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       // Display toast confirmation - simplified to only show "Vehicle Entered"
       toast({
-        title: "Vehicle Entered",
+        title: t('vehicleEntered'),
         description: "",
       });
       
     } catch (err) {
       console.error('Error in handleIncrement:', err);
       toast({
-        title: "Error updating occupancy",
-        description: "Failed to update parking occupancy. Please try again.",
+        title: t('errorUpdatingOccupancy'),
+        description: t('failedToUpdate'),
         variant: "destructive",
       });
     }
@@ -107,8 +108,8 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
     // Check if at zero
     if (office.occupancy <= 0) {
       toast({
-        title: "No vehicles to exit",
-        description: `${office.name} parking is already empty.`,
+        title: t('noVehiclesToExit'),
+        description: t('parkingEmpty', office.name),
         variant: "destructive",
       });
       return;
@@ -132,15 +133,15 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       // Display toast confirmation - simplified to only show "Vehicle Exited"
       toast({
-        title: "Vehicle Exited",
+        title: t('vehicleExited'),
         description: "",
       });
       
     } catch (err) {
       console.error('Error in handleDecrement:', err);
       toast({
-        title: "Error updating occupancy",
-        description: "Failed to update parking occupancy. Please try again.",
+        title: t('errorUpdatingOccupancy'),
+        description: t('failedToUpdate'),
         variant: "destructive",
       });
     }
@@ -155,12 +156,12 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
               console.log('SliderCTA Enter onComplete triggered');
               handleIncrement();
             }}
-            slideText="Slide to Enter →"
-            releaseText="Release to Enter"
-            successText="Vehicle Entered"
+            slideText={t('slideToEnter')}
+            releaseText={t('releaseToEnter')}
+            successText={t('vehicleEntered')}
             disabled={office.occupancy >= office.capacity}
             showDebugInfo={showDebugInfo}
-            counter={entryCount} // Pass the entry counter
+            counter={entryCount}
           />
         </div>
         
@@ -170,13 +171,13 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
               console.log('SliderCTA Exit onComplete triggered');
               handleDecrement();
             }}
-            slideText="← Slide to Exit"
-            releaseText="Release to Exit"
-            successText="Vehicle Exited"
+            slideText={t('slideToExit')}
+            releaseText={t('releaseToExit')}
+            successText={t('vehicleExited')}
             disabled={office.occupancy <= 0}
             direction="rtl"
             showDebugInfo={showDebugInfo}
-            counter={exitCount} // Pass the exit counter
+            counter={exitCount}
           />
         </div>
       </div>
@@ -189,13 +190,13 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
                 variant="ghost" 
                 className="flex items-center gap-1 text-sm font-medium"
               >
-                <span>Recent Activity</span>
+                <span>{t('recentActivity')}</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-80" align="center">
               <DropdownMenuLabel className="font-semibold">
-                Recent Activity
+                {t('recentActivity')}
               </DropdownMenuLabel>
               <div className="max-h-[300px] overflow-hidden bg-white">
                 <ActivityFeed />

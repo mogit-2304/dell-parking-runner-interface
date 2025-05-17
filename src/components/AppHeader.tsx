@@ -1,12 +1,14 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AppHeader = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const handleLogout = () => {
     try {
@@ -18,7 +20,7 @@ const AppHeader = () => {
       
       // Show simplified toast notification
       toast({
-        title: "Logout successful",
+        title: t('logoutSuccessful'),
       });
       
       // Navigate back to login page
@@ -26,8 +28,8 @@ const AppHeader = () => {
     } catch (error) {
       console.error('Error during logout:', error);
       toast({
-        title: "Logout failed",
-        description: "There was an issue logging out. Please try again.",
+        title: t('logoutFailed'),
+        description: t('logoutIssue'),
         variant: "destructive",
       });
     }
@@ -50,7 +52,7 @@ const AppHeader = () => {
         onClick={handleLogout}
         className="flex items-center gap-2"
       >
-        <span>Logout</span>
+        <span>{t('logout')}</span>
         <LogOut className="h-4 w-4" />
       </Button>
     </header>
