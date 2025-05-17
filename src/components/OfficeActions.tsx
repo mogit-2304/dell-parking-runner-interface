@@ -34,11 +34,25 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
     console.log('OfficeActions rendered with office:', office);
   }, [office]);
 
-  // Reset counters when office changes
+  // Reset counters when office changes and load persisted counter state
   useEffect(() => {
-    setEntryCount(office.occupancy);
-    setExitCount(office.capacity - office.occupancy);
+    // Try to load persisted counter values for this specific office
+    const persistedEntryCount = localStorage.getItem(`entryCount-${office.id}`);
+    const persistedExitCount = localStorage.getItem(`exitCount-${office.id}`);
+    
+    // Set counters - either from persisted values or calculated from occupancy
+    setEntryCount(persistedEntryCount ? parseInt(persistedEntryCount, 10) : office.occupancy);
+    setExitCount(persistedExitCount ? parseInt(persistedExitCount, 10) : office.capacity - office.occupancy);
+    
+    console.log('Counter state restored for office', office.id);
   }, [office.id, office.occupancy, office.capacity]);
+
+  // Persist counter values whenever they change
+  useEffect(() => {
+    localStorage.setItem(`entryCount-${office.id}`, entryCount.toString());
+    localStorage.setItem(`exitCount-${office.id}`, exitCount.toString());
+    console.log('Counter state persisted for office', office.id);
+  }, [entryCount, exitCount, office.id]);
 
   // Handle increment occupancy (check-in)
   const handleIncrement = async () => {

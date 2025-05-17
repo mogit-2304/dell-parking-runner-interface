@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import GuardLogin from "./pages/GuardLogin";
@@ -15,6 +15,16 @@ const queryClient = new QueryClient();
 // Protected Route component to check for authentication
 const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   const token = localStorage.getItem('guard-token');
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Store current path in localStorage for later restoration
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('last-path', location.pathname);
+      console.log('Saving current path:', location.pathname);
+    }
+  }, [location.pathname, token]);
   
   if (!token) {
     return <Navigate to="/" replace />;
@@ -28,8 +38,22 @@ const App = () => {
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem('guard-token');
+      
+      // If not authenticated and not on login page, redirect to login
       if (!token && window.location.pathname !== '/') {
         window.location.href = '/';
+        return;
+      }
+      
+      // If authenticated and on login page, redirect to last path or select office
+      if (token && window.location.pathname === '/') {
+        const lastPath = localStorage.getItem('last-path');
+        if (lastPath && lastPath !== '/') {
+          console.log('Restoring last path:', lastPath);
+          window.location.href = lastPath;
+        } else {
+          window.location.href = '/select-office';
+        }
       }
     };
     
