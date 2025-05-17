@@ -12,7 +12,6 @@ import {
   DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OfficeActionsProps {
   office: {
@@ -22,7 +21,7 @@ interface OfficeActionsProps {
     occupancy: number;
   };
   onUpdate: (newOccupancy: number) => void;
-  showDebugInfo?: boolean; // Add prop for debug mode
+  showDebugInfo?: boolean; // Keeping prop but will set a default value
 }
 
 const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeActionsProps) => {

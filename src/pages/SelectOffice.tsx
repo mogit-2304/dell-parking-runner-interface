@@ -32,6 +32,7 @@ const SelectOffice = () => {
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // Setting showDebugInfo to false by default and removing the toggle function
   const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
 
   // Fetch offices data
@@ -118,11 +119,6 @@ const SelectOffice = () => {
     });
     
   }, [selectedOffice]);
-
-  // Toggle debug mode
-  const toggleDebugInfo = () => {
-    setShowDebugInfo(prev => !prev);
-  };
 
   // Retry loading offices
   const handleRetry = () => {
@@ -219,14 +215,7 @@ const SelectOffice = () => {
                 <div className="bg-white rounded-lg p-6 border shadow-sm">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-xl">{selectedOffice.name} Parking Status</h3>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={toggleDebugInfo}
-                      className="text-xs"
-                    >
-                      {showDebugInfo ? "Hide Debug" : "Show Debug"}
-                    </Button>
+                    {/* Removed the Show Debug button */}
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -258,8 +247,8 @@ const SelectOffice = () => {
                     <div className="bg-gray-50 p-4 rounded-lg border">
                       <div className="text-sm text-gray-500 mb-1">Available Spaces</div>
                       <div className="flex justify-between items-center">
-                        <div className="text-3xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-3xl font-bold text-green-600">{selectedOffice.capacity - selectedOffice.occupancy}</div>
+                        <div className="text-sm text-green-600">
                           {selectedOffice.capacity - selectedOffice.occupancy === 0
                             ? "No spaces available"
                             : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
