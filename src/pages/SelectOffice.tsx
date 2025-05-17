@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import AppHeader from '@/components/AppHeader';
 import OfficeActions from '@/components/OfficeActions';
+import LanguageSelector from '@/components/LanguageSelector';
 
 // Types
 interface Office {
@@ -203,7 +204,10 @@ const SelectOffice = () => {
         <Card className="w-full max-w-4xl mx-auto shadow-lg">
           <CardContent className="space-y-6 pt-6">
             <div className="mb-6">
-              <label className="font-medium text-sm mb-2 block">Office Location</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="font-medium text-sm block">Office Location</label>
+                <LanguageSelector />
+              </div>
               <Select onValueChange={handleSelectOffice} value={selectedOffice?.id || ""}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select an office" />
