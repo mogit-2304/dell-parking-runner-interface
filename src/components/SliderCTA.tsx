@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, ChevronRight, ChevronLeft, Bug } from 'lucide-react';
+import { Check, Plus, Minus, Bug } from 'lucide-react';
 
 interface SliderCTAProps {
   onComplete: () => void;
@@ -301,9 +300,9 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
               <Check className="h-6 w-6" />
             ) : (
               direction === 'ltr' ? (
-                <ChevronRight className="h-6 w-6" />
+                <Plus className="h-6 w-6" />
               ) : (
-                <ChevronLeft className="h-6 w-6" />
+                <Minus className="h-6 w-6" />
               )
             )}
           </div>
