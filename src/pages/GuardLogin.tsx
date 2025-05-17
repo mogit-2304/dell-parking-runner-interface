@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -266,8 +265,20 @@ const GuardLogin = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="flex min-h-screen flex-col bg-gray-100 p-4">
+      {/* Logo section at the top */}
+      <div className="mx-auto w-full max-w-md mb-4 pt-4">
+        <div className="flex items-center gap-3 justify-center">
+          <img 
+            src="/lovable-uploads/b3ecde46-910c-4cab-8d3f-63e1447f2f46.png" 
+            alt="Move in Sync Logo" 
+            className="h-16 w-auto" 
+          />
+          <h1 className="text-xl font-bold">DELL Parking Management</h1>
+        </div>
+      </div>
+      
+      <Card className="w-full max-w-md mx-auto shadow-lg">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Lock className="h-8 w-8 text-primary" />
