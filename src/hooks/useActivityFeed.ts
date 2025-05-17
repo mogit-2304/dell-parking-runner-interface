@@ -1,35 +1,39 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ActivityEvent } from '../types/activityTypes';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useActivityFeed = () => {
   const [activities, setActivities] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch initial activity data
-  useEffect(() => {
-    fetchActivities();
-  }, []);
-  
-  // Fetch activities from storage or mock data
+  // Fetch initial activity data from Supabase
   const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Fetch activities from Supabase
+      const { data, error } = await supabase
+        .from('activity_events')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(20);
       
-      // Check if we have stored activities
-      const storedActivities = localStorage.getItem('activityEvents');
-      let eventsData: ActivityEvent[] = [];
-      
-      if (storedActivities) {
-        eventsData = JSON.parse(storedActivities);
+      if (error) {
+        throw error;
       }
       
-      // Update state with all activities (we'll limit display in the component)
+      // Transform data to match ActivityEvent type
+      const eventsData: ActivityEvent[] = data.map(event => ({
+        id: event.id,
+        type: event.type as 'check-in' | 'check-out',
+        officeName: event.office_name,
+        timestamp: event.timestamp
+      }));
+      
+      // Update state with activities
       setActivities(eventsData);
       setLoading(false);
     } catch (err) {
@@ -39,39 +43,62 @@ export const useActivityFeed = () => {
     }
   }, []);
   
-  // Refresh activities - exposed for manual and auto-refresh
+  // Initial fetch on component mount
+  useEffect(() => {
+    fetchActivities();
+    
+    // Set up realtime subscription for activity events
+    const channel = supabase
+      .channel('public:activity_events')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'activity_events' 
+      }, payload => {
+        // Add new activity to the list
+        const newActivity: ActivityEvent = {
+          id: payload.new.id,
+          type: payload.new.type as 'check-in' | 'check-out',
+          officeName: payload.new.office_name,
+          timestamp: payload.new.timestamp
+        };
+        
+        setActivities(prev => [newActivity, ...prev].slice(0, 20));
+      })
+      .subscribe();
+    
+    // Clean up subscription on unmount
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [fetchActivities]);
+  
+  // Manual refresh function
   const refreshActivities = useCallback(() => {
     fetchActivities();
   }, [fetchActivities]);
   
   // Record a new activity event
-  const recordActivity = useCallback((type: 'check-in' | 'check-out', officeName: string) => {
+  const recordActivity = useCallback(async (type: 'check-in' | 'check-out', officeName: string, officeId: string) => {
     try {
       // Create new activity object
-      const newActivity: ActivityEvent = {
-        id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      const newActivity = {
         type,
-        officeName,
+        office_name: officeName,
+        office_id: officeId,
         timestamp: new Date().toISOString()
       };
       
-      // Get existing activities
-      const storedActivities = localStorage.getItem('activityEvents');
-      let activitiesArray: ActivityEvent[] = [];
+      // Insert into Supabase
+      const { error } = await supabase
+        .from('activity_events')
+        .insert([newActivity]);
       
-      if (storedActivities) {
-        activitiesArray = JSON.parse(storedActivities);
+      if (error) {
+        throw error;
       }
       
-      // Add new activity at the beginning (most recent first)
-      activitiesArray = [newActivity, ...activitiesArray];
-      
-      // Store updated list
-      localStorage.setItem('activityEvents', JSON.stringify(activitiesArray));
-      
-      // Update state
-      setActivities(prev => [newActivity, ...prev]);
-      
+      // Refresh activities (realtime will handle updating the UI)
       return true;
     } catch (err) {
       console.error('Error recording activity:', err);

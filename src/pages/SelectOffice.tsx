@@ -1,93 +1,41 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import AppHeader from '@/components/AppHeader';
 import OfficeActions from '@/components/OfficeActions';
-import LanguageSelector from '@/components/LanguageSelector';
 import { useTranslation } from '@/hooks/useTranslation';
-
-// Types
-interface Office {
-  id: string;
-  name: string;
-  capacity: number;
-  occupancy: number;
-  version?: number;
-}
-
-// Mock data for offices
-const mockOffices: Office[] = [
-  { id: 'hq', name: 'Dell HQ', capacity: 50, occupancy: 10 },
-  { id: 'main', name: 'Dell Main', capacity: 156, occupancy: 20 }
-];
+import { useOffices } from '@/hooks/useOffices';
+import OfficeSelector from '@/components/OfficeSelector';
+import OfficeStatusPanel from '@/components/OfficeStatusPanel';
+import { Office } from '@/types/officeTypes';
 
 const SelectOffice = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
-  const [offices, setOffices] = useState<Office[]>([]);
+  const { offices, loading, error, updateOfficeOccupancy, fetchOffices } = useOffices();
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
 
-  // Fetch offices data
-  useEffect(() => {
-    const fetchOffices = async () => {
-      try {
-        setLoading(true);
-        // In a real app, this would be an API call
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-        
-        // Retrieve persisted data if available
-        const persistedOffices = localStorage.getItem('offices');
-        if (persistedOffices) {
-          const parsedOffices = JSON.parse(persistedOffices);
-          setOffices(parsedOffices);
-          console.log('Loaded offices from localStorage:', parsedOffices);
-          
-          // Auto-select the first office if we have offices and none is selected
-          if (parsedOffices.length > 0) {
-            setSelectedOffice(parsedOffices[0]);
-            console.log('Auto-selected first office:', parsedOffices[0]);
-          }
-        } else {
-          setOffices(mockOffices);
-          console.log('Using mock offices data:', mockOffices);
-          
-          // Auto-select the first office from mock data
-          if (mockOffices.length > 0) {
-            setSelectedOffice(mockOffices[0]);
-            console.log('Auto-selected first office from mock data:', mockOffices[0]);
-          }
-        }
-        
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching offices:', err);
-        setError('Unable to load offices');
-        setLoading(false);
-      }
-    };
-
-    fetchOffices();
-  }, []);
-
   // Handle office selection
-  const handleSelectOffice = (officeId: string) => {
+  const handleSelectOffice = useCallback((officeId: string) => {
     const office = offices.find(o => o.id === officeId);
     if (office) {
       setSelectedOffice(office);
       console.log('Selected office:', office);
     }
-  };
+  }, [offices]);
 
-  // Handle occupancy update - using useCallback to maintain stable reference
+  // Auto-select first office when offices load
+  React.useEffect(() => {
+    if (offices.length > 0 && !selectedOffice) {
+      setSelectedOffice(offices[0]);
+      console.log('Auto-selected first office:', offices[0]);
+    }
+  }, [offices, selectedOffice]);
+
+  // Handle occupancy update
   const handleOccupancyUpdate = useCallback((newOccupancy: number) => {
     if (!selectedOffice) {
       console.error('Cannot update occupancy: No office selected');
@@ -95,65 +43,32 @@ const SelectOffice = () => {
     }
     
     console.log('SelectOffice - handleOccupancyUpdate called with newOccupancy:', newOccupancy);
-    console.log('Current office state before update:', selectedOffice);
     
-    // Create a versioned update to ensure we track changes
-    const versionedUpdate = {
-      ...selectedOffice,
-      occupancy: newOccupancy,
-      version: (selectedOffice.version || 0) + 1
-    };
-    
-    console.log('New office state to be applied:', versionedUpdate);
-    
-    // Update offices state
-    setOffices(prevOffices => {
-      const updatedOffices = prevOffices.map(office => {
-        if (office.id === selectedOffice.id) {
-          return versionedUpdate;
+    // Update office occupancy in Supabase
+    updateOfficeOccupancy(selectedOffice.id, newOccupancy)
+      .then(success => {
+        if (success) {
+          // Update selected office state
+          setSelectedOffice(prev => {
+            if (prev) {
+              return { ...prev, occupancy: newOccupancy };
+            }
+            return prev;
+          });
+          
+          // Display toast for confirmation
+          toast({
+            title: t('officeUpdated'),
+            description: t('occupancyUpdated', selectedOffice.name, newOccupancy),
+          });
         }
-        return office;
       });
-      
-      // Persist changes in localStorage immediately
-      localStorage.setItem('offices', JSON.stringify(updatedOffices));
-      console.log('Updated offices in localStorage:', updatedOffices);
-      
-      return updatedOffices;
-    });
-    
-    // Update selected office separately
-    setSelectedOffice(versionedUpdate);
-    
-    // Display toast for debugging
-    toast({
-      title: t('officeUpdated'),
-      description: t('occupancyUpdated', selectedOffice.name, newOccupancy),
-    });
-    
-  }, [selectedOffice, t]);
+  }, [selectedOffice, updateOfficeOccupancy, t]);
 
   // Retry loading offices
   const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setOffices(mockOffices);
-      setLoading(false);
-    }, 500);
+    fetchOffices();
   };
-
-  // Ensure selectedOffice stays in sync with offices array
-  useEffect(() => {
-    if (selectedOffice) {
-      const updatedOffice = offices.find(o => o.id === selectedOffice.id);
-      if (updatedOffice && updatedOffice.version !== selectedOffice.version) {
-        console.log('Syncing selectedOffice with updated office data:', updatedOffice);
-        setSelectedOffice(updatedOffice);
-      }
-    }
-  }, [offices, selectedOffice]);
 
   if (loading) {
     return (
@@ -204,80 +119,23 @@ const SelectOffice = () => {
       <div className="flex-1 p-4">
         <Card className="w-full max-w-4xl mx-auto shadow-lg">
           <CardContent className="space-y-6 pt-6">
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <label className="font-medium text-sm block">{t('officeLocation')}</label>
-                <LanguageSelector />
-              </div>
-              <Select onValueChange={handleSelectOffice} value={selectedOffice?.id || ""}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('selectOffice')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {offices.map(office => (
-                    <SelectItem key={office.id} value={office.id}>
-                      {office.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <OfficeSelector 
+              offices={offices}
+              selectedOfficeId={selectedOffice?.id}
+              onSelectOffice={handleSelectOffice}
+            />
             
             {selectedOffice ? (
               <div className="space-y-6">
-                <div className="bg-white rounded-lg p-6 border shadow-sm">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-xl">{t('parkingStatus', selectedOffice.name)}</h3>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">{t('currentOccupancy')}</div>
-                      <div className="flex justify-between items-center">
-                        <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
-                        <div className="text-sm text-gray-500">
-                          {selectedOffice.occupancy === selectedOffice.capacity 
-                            ? t('parkingFull')
-                            : t('occupiedPercentage', Math.round((selectedOffice.occupancy / selectedOffice.capacity) * 100))
-                          }
-                        </div>
-                      </div>
-                      <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${
-                            selectedOffice.occupancy / selectedOffice.capacity > 0.8 
-                              ? 'bg-red-500' 
-                              : selectedOffice.occupancy / selectedOffice.capacity > 0.5 
-                                ? 'bg-yellow-500' 
-                                : 'bg-green-500'
-                          }`}
-                          style={{ width: `${Math.min(100, (selectedOffice.occupancy / selectedOffice.capacity) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">{t('availableSlots')}</div>
-                      <div className="flex justify-between items-center">
-                        <div className="text-3xl font-bold text-green-600">{selectedOffice.capacity - selectedOffice.occupancy}</div>
-                        <div className="text-sm text-green-600">
-                          {selectedOffice.capacity - selectedOffice.occupancy === 0
-                            ? t('noSpaces')
-                            : t('availablePercentage', Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100))
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 p-6 rounded-lg border">
-                    <h4 className="font-semibold text-lg mb-4">{t('vehicleEntryExit')}</h4>
-                    <OfficeActions 
-                      office={selectedOffice} 
-                      onUpdate={handleOccupancyUpdate}
-                      showDebugInfo={showDebugInfo}
-                    />
-                  </div>
+                <OfficeStatusPanel office={selectedOffice} />
+                
+                <div className="bg-gray-50 p-6 rounded-lg border">
+                  <h4 className="font-semibold text-lg mb-4">{t('vehicleEntryExit')}</h4>
+                  <OfficeActions 
+                    office={selectedOffice} 
+                    onUpdate={handleOccupancyUpdate}
+                    showDebugInfo={showDebugInfo}
+                  />
                 </div>
               </div>
             ) : (

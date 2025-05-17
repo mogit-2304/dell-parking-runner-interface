@@ -2,25 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { toast } from '@/hooks/use-toast';
-import { ActivityFeed } from './ActivityFeed';
 import SliderCTA from './SliderCTA';
-import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel
-} from '@/components/ui/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
+import { Office } from '@/types/officeTypes';
 import { useTranslation } from '@/hooks/useTranslation';
+import { ActivityDropdown } from './ActivityDropdown';
 
 interface OfficeActionsProps {
-  office: {
-    id: string;
-    name: string;
-    capacity: number;
-    occupancy: number;
-  };
+  office: Office;
   onUpdate: (newOccupancy: number) => void;
   showDebugInfo?: boolean;
 }
@@ -77,16 +65,16 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       console.log('handleIncrement - Current:', office.occupancy, 'New:', newOccupancy);
       
       // Record the activity
-      recordActivity('check-in', office.name);
+      recordActivity('check-in', office.name, office.id);
       
       // Update the entry counter
       setEntryCount(prevCount => prevCount + 1);
       
-      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
+      // Call the onUpdate callback with the new occupancy
       console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
       
-      // Display toast confirmation - simplified to only show "Vehicle Entered"
+      // Display toast confirmation
       toast({
         title: t('vehicleEntered'),
         description: "",
@@ -123,16 +111,16 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       console.log('handleDecrement - Current:', office.occupancy, 'New:', newOccupancy);
       
       // Record the activity
-      recordActivity('check-out', office.name);
+      recordActivity('check-out', office.name, office.id);
       
       // Update the exit counter
       setExitCount(prevCount => prevCount + 1);
       
-      // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
+      // Call the onUpdate callback with the new occupancy
       console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
       
-      // Display toast confirmation - simplified to only show "Vehicle Exited"
+      // Display toast confirmation
       toast({
         title: t('vehicleExited'),
         description: "",
@@ -185,25 +173,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       <div className="mt-4">
         <div className="flex justify-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="flex items-center gap-1 text-sm font-medium"
-              >
-                <span>{t('recentActivity')}</span>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="center" side="bottom" sideOffset={5} alignOffset={0}>
-              <DropdownMenuLabel className="font-semibold">
-                {t('recentActivity')}
-              </DropdownMenuLabel>
-              <div className="max-h-[300px] overflow-auto bg-white">
-                <ActivityFeed />
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ActivityDropdown />
         </div>
       </div>
     </div>
