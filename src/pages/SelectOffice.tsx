@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -48,9 +49,21 @@ const SelectOffice = () => {
           const parsedOffices = JSON.parse(persistedOffices);
           setOffices(parsedOffices);
           console.log('Loaded offices from localStorage:', parsedOffices);
+          
+          // Auto-select the first office if we have offices and none is selected
+          if (parsedOffices.length > 0) {
+            setSelectedOffice(parsedOffices[0]);
+            console.log('Auto-selected first office:', parsedOffices[0]);
+          }
         } else {
           setOffices(mockOffices);
           console.log('Using mock offices data:', mockOffices);
+          
+          // Auto-select the first office from mock data
+          if (mockOffices.length > 0) {
+            setSelectedOffice(mockOffices[0]);
+            console.log('Auto-selected first office from mock data:', mockOffices[0]);
+          }
         }
         
         setLoading(false);
