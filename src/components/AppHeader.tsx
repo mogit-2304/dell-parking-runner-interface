@@ -35,12 +35,13 @@ const AppHeader = () => {
   
   return (
     <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-      <div>
+      <div className="flex items-center gap-3">
         <img 
           src="/lovable-uploads/cd1fd69e-1d4b-4806-b4d9-7e6f77ea9e11.png" 
           alt="Move in Sync Logo" 
           className="h-16 w-auto" // Increased height from h-10 to h-16
         />
+        <h1 className="text-xl font-bold">DELL Parking Management</h1>
       </div>
       
       <Button 
