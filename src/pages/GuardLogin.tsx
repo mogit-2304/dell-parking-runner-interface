@@ -268,13 +268,12 @@ const GuardLogin = () => {
     <div className="flex min-h-screen flex-col bg-gray-100 p-4">
       {/* Logo section at the top */}
       <div className="mx-auto w-full max-w-md mb-4 pt-4">
-        <div className="flex items-center gap-3 justify-center">
+        <div className="flex items-center justify-center">
           <img 
             src="/lovable-uploads/b3ecde46-910c-4cab-8d3f-63e1447f2f46.png" 
             alt="Move in Sync Logo" 
             className="h-16 w-auto" 
           />
-          <h1 className="text-xl font-bold">DELL Parking Management</h1>
         </div>
       </div>
       
