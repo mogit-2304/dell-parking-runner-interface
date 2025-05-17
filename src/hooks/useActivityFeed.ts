@@ -1,13 +1,11 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ActivityEvent } from '../types/activityTypes';
 
 export const useActivityFeed = () => {
   const [activities, setActivities] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState<number>(1);
-  const [hasMore, setHasMore] = useState<boolean>(true);
   
   // Fetch initial activity data
   useEffect(() => {
@@ -15,7 +13,7 @@ export const useActivityFeed = () => {
   }, []);
   
   // Fetch activities from storage or mock data
-  const fetchActivities = async (nextPage = 1) => {
+  const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -31,44 +29,23 @@ export const useActivityFeed = () => {
         eventsData = JSON.parse(storedActivities);
       }
       
-      // If no stored activities and first page, create empty array
-      if (!eventsData.length && nextPage === 1) {
-        eventsData = [];
-      }
-      
-      // Paginate results - 10 per page
-      const pageSize = 10;
-      const startIndex = (nextPage - 1) * pageSize;
-      const paginatedEvents = eventsData.slice(startIndex, startIndex + pageSize);
-      
-      // Check if we have more pages
-      setHasMore(startIndex + pageSize < eventsData.length);
-      
-      // Update state
-      if (nextPage === 1) {
-        setActivities(paginatedEvents);
-      } else {
-        setActivities(prev => [...prev, ...paginatedEvents]);
-      }
-      
-      setPage(nextPage);
+      // Update state with all activities (we'll limit display in the component)
+      setActivities(eventsData);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching activities:', err);
       setError('Failed to load activity data');
       setLoading(false);
     }
-  };
+  }, []);
   
-  // Load more activities
-  const loadMore = () => {
-    if (!loading && hasMore) {
-      fetchActivities(page + 1);
-    }
-  };
+  // Refresh activities - exposed for manual and auto-refresh
+  const refreshActivities = useCallback(() => {
+    fetchActivities();
+  }, [fetchActivities]);
   
   // Record a new activity event
-  const recordActivity = (type: 'check-in' | 'check-out', officeName: string) => {
+  const recordActivity = useCallback((type: 'check-in' | 'check-out', officeName: string) => {
     try {
       // Create new activity object
       const newActivity: ActivityEvent = {
@@ -93,21 +70,20 @@ export const useActivityFeed = () => {
       localStorage.setItem('activityEvents', JSON.stringify(activitiesArray));
       
       // Update state
-      setActivities(prev => [newActivity, ...prev].slice(0, prev.length + 1));
+      setActivities(prev => [newActivity, ...prev]);
       
       return true;
     } catch (err) {
       console.error('Error recording activity:', err);
       return false;
     }
-  };
+  }, []);
   
   return {
     activities,
     loading,
     error,
-    hasMore,
-    loadMore,
+    refreshActivities,
     recordActivity
   };
 };

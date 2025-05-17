@@ -148,9 +148,8 @@ export const translations = {
     recentActivity: "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
     
     // Office Actions toast messages
-    parkingFull: "Parking full",
-    parkingAtCapacity: (name: string) => `${name} parking is at capacity.`,
     noVehiclesToExit: "ನಿರ್ಗಮನಕ್ಕೆ ಯಾವುದೇ ವಾಹನಗಳಿಲ್ಲ",
+    parkingAtCapacity: (name: string) => `${name} parking is at capacity.`,
     parkingEmpty: (name: string) => `${name} parking is already empty.`,
     errorUpdatingOccupancy: "Error updating occupancy",
     failedToUpdate: "Failed to update parking occupancy. Please try again.",

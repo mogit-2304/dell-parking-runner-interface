@@ -1,5 +1,5 @@
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LogIn, LogOut } from 'lucide-react';
@@ -7,30 +7,26 @@ import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { ActivityEvent } from '@/types/activityTypes';
 
 export const ActivityFeed = () => {
-  const { activities, loading, error, hasMore, loadMore } = useActivityFeed();
-  const observer = useRef<IntersectionObserver | null>(null);
+  const { activities, loading, error, refreshActivities } = useActivityFeed();
   
   // Limiting the activities to the most recent 20
   const limitedActivities = activities.slice(0, 20);
   
-  // Setup intersection observer for infinite scroll
-  const lastActivityRef = useCallback((node: HTMLDivElement | null) => {
-    if (loading) return;
+  // Auto refresh activities every minute
+  useEffect(() => {
+    // Initial load is handled by the hook itself
     
-    if (observer.current) {
-      observer.current.disconnect();
-    }
+    // Set up interval for refreshing activities
+    const intervalId = setInterval(() => {
+      console.log('Auto-refreshing activities');
+      refreshActivities();
+    }, 60000); // 60000 ms = 1 minute
     
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadMore();
-      }
-    });
-    
-    if (node) {
-      observer.current.observe(node);
-    }
-  }, [loading, hasMore, loadMore]);
+    // Clean up interval on component unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [refreshActivities]);
   
   // Format timestamp for display
   const formatTimestamp = (timestamp: string): string => {
@@ -42,15 +38,12 @@ export const ActivityFeed = () => {
   };
   
   // Render activity item
-  const ActivityItem = ({ activity, isLast }: { activity: ActivityEvent, isLast?: boolean }) => {
+  const ActivityItem = ({ activity }: { activity: ActivityEvent }) => {
     const icon = activity.type === 'check-in' ? <LogIn className="h-4 w-4 text-green-500 mr-2" /> : <LogOut className="h-4 w-4 text-red-500 mr-2" />;
     const label = activity.type === 'check-in' ? 'Check-in' : 'Check-out';
     
     return (
-      <div 
-        ref={isLast ? lastActivityRef : null}
-        className="flex items-center py-2 border-b border-gray-100 last:border-0"
-      >
+      <div className="flex items-center py-2 border-b border-gray-100 last:border-0">
         {icon}
         <div className="flex-1">
           <p className="text-sm">
@@ -72,11 +65,10 @@ export const ActivityFeed = () => {
           <p className="text-center py-4 text-gray-400">No recent activity</p>
         )}
         
-        {limitedActivities.map((activity, index) => (
+        {limitedActivities.map((activity) => (
           <ActivityItem 
             key={activity.id} 
-            activity={activity} 
-            isLast={index === limitedActivities.length - 1}
+            activity={activity}
           />
         ))}
         
