@@ -39,7 +39,7 @@ const AppHeader = () => {
         <img 
           src="/lovable-uploads/cd1fd69e-1d4b-4806-b4d9-7e6f77ea9e11.png" 
           alt="Move in Sync Logo" 
-          className="h-10 w-auto"
+          className="h-16 w-auto" // Increased height from h-10 to h-16
         />
       </div>
       
