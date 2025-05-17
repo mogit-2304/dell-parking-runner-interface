@@ -37,9 +37,9 @@ const AppHeader = () => {
     <header className="bg-white shadow-sm p-4 flex justify-between items-center">
       <div className="flex items-center gap-3">
         <img 
-          src="/lovable-uploads/cd1fd69e-1d4b-4806-b4d9-7e6f77ea9e11.png" 
+          src="/lovable-uploads/b3ecde46-910c-4cab-8d3f-63e1447f2f46.png" 
           alt="Move in Sync Logo" 
-          className="h-16 w-auto" // Increased height from h-10 to h-16
+          className="h-16 w-auto" 
         />
         <h1 className="text-xl font-bold">DELL Parking Management</h1>
       </div>
