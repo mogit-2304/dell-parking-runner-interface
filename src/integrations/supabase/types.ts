@@ -52,6 +52,7 @@ export type Database = {
           name: string
           occupancy: number
           updated_at: string
+          version: number | null
         }
         Insert: {
           capacity?: number
@@ -60,6 +61,7 @@ export type Database = {
           name: string
           occupancy?: number
           updated_at?: string
+          version?: number | null
         }
         Update: {
           capacity?: number
@@ -68,6 +70,7 @@ export type Database = {
           name?: string
           occupancy?: number
           updated_at?: string
+          version?: number | null
         }
         Relationships: []
       }

@@ -4,5 +4,5 @@ export interface Office {
   name: string;
   capacity: number;
   occupancy: number;
-  version?: number;
+  version: number;
 }
