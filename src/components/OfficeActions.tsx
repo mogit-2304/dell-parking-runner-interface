@@ -71,10 +71,10 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
       
-      // Display toast confirmation
+      // Display toast confirmation - simplified to only show "Vehicle Entered"
       toast({
         title: "Vehicle Entered",
-        description: `${office.name} occupancy: ${newOccupancy}/${office.capacity}`,
+        description: "",
       });
       
     } catch (err) {
@@ -117,10 +117,10 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
       
-      // Display toast confirmation
+      // Display toast confirmation - simplified to only show "Vehicle Exited"
       toast({
         title: "Vehicle Exited",
-        description: `${office.name} occupancy: ${newOccupancy}/${office.capacity}`,
+        description: "",
       });
       
     } catch (err) {
