@@ -36,7 +36,11 @@ const AppHeader = () => {
   return (
     <header className="bg-white shadow-sm p-4 flex justify-between items-center">
       <div>
-        {/* Removed DELL text from here */}
+        <img 
+          src="/lovable-uploads/cd1fd69e-1d4b-4806-b4d9-7e6f77ea9e11.png" 
+          alt="Move in Sync Logo" 
+          className="h-10 w-auto"
+        />
       </div>
       
       <Button 
