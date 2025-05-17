@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -229,7 +228,7 @@ const SelectOffice = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">Current Occupancy</div>
+                      <div className="text-sm text-gray-500 mb-1">Current Parking Occupancy</div>
                       <div className="flex justify-between items-center">
                         <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
                         <div className="text-sm text-gray-500">
@@ -254,7 +253,7 @@ const SelectOffice = () => {
                     </div>
                     
                     <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">Available Spaces</div>
+                      <div className="text-sm text-gray-500 mb-1">Available Parking Slots</div>
                       <div className="flex justify-between items-center">
                         <div className="text-3xl font-bold text-green-600">{selectedOffice.capacity - selectedOffice.occupancy}</div>
                         <div className="text-sm text-green-600">
