@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -215,12 +216,14 @@ const SelectOffice = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg border">
                       <div className="text-sm text-gray-500 mb-1">Current Occupancy</div>
-                      <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
-                      <div className="text-sm text-gray-500 mt-2">
-                        {selectedOffice.capacity - selectedOffice.occupancy === 0 
-                          ? "Parking is full" 
-                          : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
-                        }
+                      <div className="flex justify-between items-center">
+                        <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
+                        <div className="text-sm text-gray-500">
+                          {selectedOffice.capacity - selectedOffice.occupancy === 0 
+                            ? "Parking is full" 
+                            : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
+                          }
+                        </div>
                       </div>
                       <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 

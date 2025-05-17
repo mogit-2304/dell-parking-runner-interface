@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { toast } from '@/hooks/use-toast';
@@ -12,6 +11,7 @@ import {
   DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OfficeActionsProps {
   office: {
