@@ -5,7 +5,13 @@ import { toast } from '@/hooks/use-toast';
 import { ActivityFeed } from './ActivityFeed';
 import SliderCTA from './SliderCTA';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel
+} from '@/components/ui/dropdown-menu';
+import { ChevronDown } from 'lucide-react';
 
 interface OfficeActionsProps {
   office: {
@@ -19,7 +25,6 @@ interface OfficeActionsProps {
 
 const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
-  const [showActivityFeed, setShowActivityFeed] = useState(false);
 
   // Debug on initial render and when office changes
   useEffect(() => {
@@ -145,25 +150,26 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       
       <div className="mt-4">
         <div className="flex justify-center">
-          <Button 
-            variant="ghost" 
-            className="flex items-center gap-1 text-sm font-medium"
-            onClick={() => setShowActivityFeed(prev => !prev)}
-          >
-            <h5>Recent Activity</h5>
-            {showActivityFeed ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="flex items-center gap-1 text-sm font-medium"
+              >
+                <span>Recent Activity</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80" align="center">
+              <DropdownMenuLabel className="font-semibold">
+                Recent Activity
+              </DropdownMenuLabel>
+              <div className="max-h-[300px] overflow-hidden bg-white">
+                <ActivityFeed />
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        
-        {showActivityFeed && (
-          <div className="mt-2 bg-white border rounded-lg shadow p-2">
-            <ActivityFeed />
-          </div>
-        )}
       </div>
     </div>
   );
