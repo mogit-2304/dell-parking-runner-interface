@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { toast } from '@/hooks/use-toast';
@@ -21,9 +22,10 @@ interface OfficeActionsProps {
     occupancy: number;
   };
   onUpdate: (newOccupancy: number) => void;
+  showDebugInfo?: boolean; // Add prop for debug mode
 }
 
-const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
+const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
 
   // Debug on initial render and when office changes
@@ -130,6 +132,7 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
             releaseText="Release to Enter"
             successText="Vehicle Entered"
             disabled={office.occupancy >= office.capacity}
+            showDebugInfo={showDebugInfo}
           />
         </div>
         
@@ -144,6 +147,7 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
             successText="Vehicle Exited"
             disabled={office.occupancy <= 0}
             direction="rtl"
+            showDebugInfo={showDebugInfo}
           />
         </div>
       </div>

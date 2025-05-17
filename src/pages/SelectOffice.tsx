@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -31,6 +32,7 @@ const SelectOffice = () => {
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDebugInfo, setShowDebugInfo] = useState<boolean>(false);
 
   // Fetch offices data
   useEffect(() => {
@@ -116,6 +118,11 @@ const SelectOffice = () => {
     });
     
   }, [selectedOffice]);
+
+  // Toggle debug mode
+  const toggleDebugInfo = () => {
+    setShowDebugInfo(prev => !prev);
+  };
 
   // Retry loading offices
   const handleRetry = () => {
@@ -210,7 +217,17 @@ const SelectOffice = () => {
             {selectedOffice ? (
               <div className="space-y-6">
                 <div className="bg-white rounded-lg p-6 border shadow-sm">
-                  <h3 className="font-bold text-xl mb-4">{selectedOffice.name} Parking Status</h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-xl">{selectedOffice.name} Parking Status</h3>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={toggleDebugInfo}
+                      className="text-xs"
+                    >
+                      {showDebugInfo ? "Hide Debug" : "Show Debug"}
+                    </Button>
+                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg border">
@@ -256,7 +273,8 @@ const SelectOffice = () => {
                     <h4 className="font-semibold text-lg mb-4">Vehicle Entry/Exit</h4>
                     <OfficeActions 
                       office={selectedOffice} 
-                      onUpdate={handleOccupancyUpdate} 
+                      onUpdate={handleOccupancyUpdate}
+                      showDebugInfo={showDebugInfo}
                     />
                   </div>
                 </div>

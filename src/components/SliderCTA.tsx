@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Bug } from 'lucide-react';
 
 interface SliderCTAProps {
   onComplete: () => void;
@@ -11,6 +11,7 @@ interface SliderCTAProps {
   successHoldTime?: number;
   disabled?: boolean;
   direction?: 'ltr' | 'rtl'; // Left to right (default) or right to left
+  showDebugInfo?: boolean; // New prop for toggling debug panel
 }
 
 const SliderCTA: React.FC<SliderCTAProps> = ({
@@ -22,11 +23,13 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   successHoldTime = 1000,
   disabled = false,
   direction = 'ltr', // Default is left to right
+  showDebugInfo = false, // Default hidden
 }) => {
   const [offsetX, setOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasTriggeredCallback, setHasTriggeredCallback] = useState(false);
+  const [counter, setCounter] = useState(0); // Success counter
   const sliderRef = useRef<HTMLDivElement>(null);
   const buttonSize = 64; // Button width (16 * 4 = 64px)
   const containerWidth = 288; // w-72 = 18rem = 288px
@@ -44,6 +47,10 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       // Only trigger the callback once per completion
       if (!hasTriggeredCallback) {
         console.log('SliderCTA: Executing onComplete inside effect');
+        
+        // Increment counter
+        setCounter(prevCount => prevCount + 1);
+        
         // Small delay to ensure UI is updated before callback
         setTimeout(() => {
           onCompleteRef.current();
@@ -173,8 +180,37 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
     }
   };
   
+  // Render debug panel if enabled
+  const renderDebugInfo = () => {
+    if (!showDebugInfo) return null;
+    
+    return (
+      <div className="mt-2 p-2 bg-gray-100 border rounded-md text-xs font-mono">
+        <div className="flex items-center justify-between mb-1">
+          <span className="font-semibold">Debug Information</span>
+          <Bug className="h-4 w-4 text-gray-500" />
+        </div>
+        <div className="grid grid-cols-2 gap-x-2">
+          <div>Position:</div>
+          <div>{Math.round(offsetX)}px / {maxDragDistance}px</div>
+          
+          <div>Completion:</div>
+          <div>{Math.round(completionPercent)}%</div>
+          
+          <div>State:</div>
+          <div>
+            {isDragging ? "Dragging" : hasCompleted ? "Completed" : "Idle"}
+          </div>
+          
+          <div>Success Count:</div>
+          <div>{counter}</div>
+        </div>
+      </div>
+    );
+  };
+  
   return (
-    <div className={`flex justify-center items-center w-full ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
+    <div className={`flex flex-col justify-center items-center w-full ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}>
       {/* Main slider container */}
       <div 
         ref={sliderRef}
@@ -258,6 +294,9 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Debug information panel */}
+      {renderDebugInfo()}
     </div>
   );
 };
