@@ -10,6 +10,9 @@ export const ActivityFeed = () => {
   const { activities, loading, error, hasMore, loadMore } = useActivityFeed();
   const observer = useRef<IntersectionObserver | null>(null);
   
+  // Limiting the activities to the most recent 20
+  const limitedActivities = activities.slice(0, 20);
+  
   // Setup intersection observer for infinite scroll
   const lastActivityRef = useCallback((node: HTMLDivElement | null) => {
     if (loading) return;
@@ -65,20 +68,29 @@ export const ActivityFeed = () => {
           <p className="text-center py-4 text-red-500">Failed to load activities</p>
         )}
         
-        {!loading && activities.length === 0 && (
+        {!loading && limitedActivities.length === 0 && (
           <p className="text-center py-4 text-gray-400">No recent activity</p>
         )}
         
-        {activities.map((activity, index) => (
+        {limitedActivities.map((activity, index) => (
           <ActivityItem 
             key={activity.id} 
             activity={activity} 
-            isLast={index === activities.length - 1}
+            isLast={index === limitedActivities.length - 1}
           />
         ))}
         
         {loading && (
           <p className="text-center py-2 text-gray-400">Loading...</p>
+        )}
+
+        {/* Message at the bottom */}
+        {activities.length > 0 && (
+          <div className="border-t border-gray-100 mt-2 pt-2">
+            <p className="text-center text-xs text-gray-500">
+              Showing last {Math.min(20, activities.length)} actions. Contact admin for older records.
+            </p>
+          </div>
         )}
       </div>
     </ScrollArea>
