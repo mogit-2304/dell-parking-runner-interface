@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -6,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import AppHeader from '@/components/AppHeader';
 import OfficeActions from '@/components/OfficeActions';
 
@@ -215,6 +216,12 @@ const SelectOffice = () => {
                     <div className="bg-gray-50 p-4 rounded-lg border">
                       <div className="text-sm text-gray-500 mb-1">Current Occupancy</div>
                       <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
+                      <div className="text-sm text-gray-500 mt-2">
+                        {selectedOffice.capacity - selectedOffice.occupancy === 0 
+                          ? "Parking is full" 
+                          : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
+                        }
+                      </div>
                       <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`h-full rounded-full ${
@@ -232,12 +239,6 @@ const SelectOffice = () => {
                     <div className="bg-gray-50 p-4 rounded-lg border">
                       <div className="text-sm text-gray-500 mb-1">Available Spaces</div>
                       <div className="text-3xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
-                      <div className="text-sm text-gray-500 mt-2">
-                        {selectedOffice.capacity - selectedOffice.occupancy === 0 
-                          ? "Parking is full" 
-                          : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
-                        }
-                      </div>
                     </div>
                   </div>
                   
