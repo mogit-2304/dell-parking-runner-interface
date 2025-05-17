@@ -219,9 +219,9 @@ const SelectOffice = () => {
                       <div className="flex justify-between items-center">
                         <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
                         <div className="text-sm text-gray-500">
-                          {selectedOffice.capacity - selectedOffice.occupancy === 0 
+                          {selectedOffice.occupancy === selectedOffice.capacity 
                             ? "Parking is full" 
-                            : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
+                            : `${Math.round((selectedOffice.occupancy / selectedOffice.capacity) * 100)}% occupied`
                           }
                         </div>
                       </div>
