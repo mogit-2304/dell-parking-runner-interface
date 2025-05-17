@@ -66,9 +66,8 @@ export const translations = {
     recentActivity: "Recent Activity",
     
     // Office Actions toast messages
-    parkingFull: "Parking full",
-    parkingAtCapacity: (name: string) => `${name} parking is at capacity.`,
     noVehiclesToExit: "No vehicles to exit",
+    parkingAtCapacity: (name: string) => `${name} parking is at capacity.`,
     parkingEmpty: (name: string) => `${name} parking is already empty.`,
     errorUpdatingOccupancy: "Error updating occupancy",
     failedToUpdate: "Failed to update parking occupancy. Please try again.",
@@ -116,7 +115,6 @@ export const translations = {
     newOtpSentTo: (phone: string) => `ಹೊಸ ಒಂದು-ಸಮಯ ಗುಪ್ತಪದವನ್ನು ${phone} ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ`,
     loginSuccessful: "ಲಾಗಿನ್ ಯಶಸ್ವಿ",
     loginSuccessDesc: "ನೀವು ಯಶಸ್ವಿಯಾಗಿ ಲಾಗಿನ್ ಆಗಿದ್ದೀರಿ.",
-    invalidOTP: "ಅಮಾನ್ಯ OTP",
     attemptsRemaining: (attempts: number) => `ಲಾಕ್‌ಔಟ್‌ಗೂ ಮುನ್ನ ${attempts} ಪ್ರಯತ್ನಗಳಿವೆ.`,
     
     // Home Page
