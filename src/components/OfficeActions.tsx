@@ -1,9 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { toast } from '@/hooks/use-toast';
 import { ActivityFeed } from './ActivityFeed';
 import SliderCTA from './SliderCTA';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface OfficeActionsProps {
   office: {
@@ -17,6 +19,7 @@ interface OfficeActionsProps {
 
 const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
+  const [showActivityFeed, setShowActivityFeed] = useState(false);
 
   // Debug on initial render and when office changes
   useEffect(() => {
@@ -141,8 +144,26 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       </div>
       
       <div className="mt-4">
-        <h5 className="font-medium text-sm mb-2">Recent Activity</h5>
-        <ActivityFeed />
+        <div className="flex justify-center">
+          <Button 
+            variant="ghost" 
+            className="flex items-center gap-1 text-sm font-medium"
+            onClick={() => setShowActivityFeed(prev => !prev)}
+          >
+            <h5>Recent Activity</h5>
+            {showActivityFeed ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+        
+        {showActivityFeed && (
+          <div className="mt-2 bg-white border rounded-lg shadow p-2">
+            <ActivityFeed />
+          </div>
+        )}
       </div>
     </div>
   );
