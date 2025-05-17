@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AppHeader from '@/components/AppHeader';
 import OfficeActions from '@/components/OfficeActions';
 
@@ -215,39 +217,46 @@ const SelectOffice = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gray-50 p-4 rounded-lg border">
                       <div className="text-sm text-gray-500 mb-1">Current Occupancy</div>
-                      <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
-                      <div className="text-sm text-gray-500 mt-2">
-                        {selectedOffice.capacity - selectedOffice.occupancy === 0 
-                          ? "Parking is full" 
-                          : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
-                        }
+                      <div className="flex justify-between items-center">
+                        <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
+                        <div className="text-sm text-gray-500">
+                          {selectedOffice.capacity - selectedOffice.occupancy === 0 
+                            ? "Parking is full" 
+                            : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
+                          }
+                        </div>
                       </div>
                       <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full rounded-full ${
-                            selectedOffice.occupancy / selectedOffice.capacity > 0.8 
-                              ? 'bg-red-500' 
-                              : selectedOffice.occupancy / selectedOffice.capacity > 0.5 
-                                ? 'bg-yellow-500' 
-                                : 'bg-green-500'
-                          }`}
+                          className={`h-full rounded-full bg-red-500`}
                           style={{ width: `${Math.min(100, (selectedOffice.occupancy / selectedOffice.capacity) * 100)}%` }}
                         />
                       </div>
                     </div>
                     
                     <div className="bg-gray-50 p-4 rounded-lg border">
-                      <div className="text-sm text-gray-500 mb-1">Available Spaces</div>
+                      <div className="text-sm text-green-600 font-medium mb-1">Available Spaces</div>
                       <div className="text-3xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
                     </div>
                   </div>
                   
                   <div className="bg-gray-50 p-6 rounded-lg border">
-                    <h4 className="font-semibold text-lg mb-4">Vehicle Entry/Exit</h4>
-                    <OfficeActions 
-                      office={selectedOffice} 
-                      onUpdate={handleOccupancyUpdate} 
-                    />
+                    <div className="flex items-center justify-center mb-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="w-full max-w-xs">Recent Activity</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="w-64">
+                          <div className="p-4 text-left">
+                            <h4 className="font-semibold text-lg mb-4">Vehicle Entry/Exit</h4>
+                            <OfficeActions 
+                              office={selectedOffice} 
+                              onUpdate={handleOccupancyUpdate} 
+                            />
+                          </div>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </div>
               </div>
