@@ -6,11 +6,13 @@ import { ActivityFeed } from './ActivityFeed';
 import SliderCTA from './SliderCTA';
 import { Button } from '@/components/ui/button';
 import { 
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel
-} from '@/components/ui/dropdown-menu';
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { useMobile } from '@/hooks/use-mobile';
 import { ChevronDown } from 'lucide-react';
 
 interface OfficeActionsProps {
@@ -25,6 +27,7 @@ interface OfficeActionsProps {
 
 const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   const { recordActivity } = useActivityFeed();
+  const isMobile = useMobile();
 
   // Debug on initial render and when office changes
   useEffect(() => {
@@ -117,6 +120,74 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
     }
   };
 
+  // Render mobile activity UI using Sheet component for mobile
+  const renderMobileActivityUI = () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          className="flex items-center gap-1 text-sm font-medium w-full justify-center"
+        >
+          <span>Recent Activity</span>
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="h-[80vh] sm:h-[70vh] rounded-t-xl">
+        <SheetHeader className="text-left">
+          <SheetTitle className="text-xl font-bold">Recent Activity</SheetTitle>
+        </SheetHeader>
+        <div className="mt-4">
+          <ActivityFeed />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+
+  // Render desktop activity UI using dropdown
+  const renderDesktopActivityUI = () => (
+    <div className="flex justify-center">
+      <div className="relative flex flex-col items-center w-full">
+        <Button 
+          variant="ghost" 
+          className="flex items-center gap-1 text-sm font-medium"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <span>Recent Activity</span>
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+        {isOpen && (
+          <div className="absolute top-full mt-1 w-80 bg-white rounded-md shadow-lg z-50 border">
+            <div className="p-2 font-semibold border-b">
+              Recent Activity
+            </div>
+            <div className="max-h-[300px] overflow-hidden bg-white">
+              <ActivityFeed />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // State for dropdown visibility on desktop
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Close dropdown when clicking outside (for desktop)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.relative') && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4">
@@ -149,27 +220,7 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       </div>
       
       <div className="mt-4">
-        <div className="flex justify-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                className="flex items-center gap-1 text-sm font-medium"
-              >
-                <span>Recent Activity</span>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="center">
-              <DropdownMenuLabel className="font-semibold">
-                Recent Activity
-              </DropdownMenuLabel>
-              <div className="max-h-[300px] overflow-hidden bg-white">
-                <ActivityFeed />
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {isMobile ? renderMobileActivityUI() : renderDesktopActivityUI()}
       </div>
     </div>
   );
