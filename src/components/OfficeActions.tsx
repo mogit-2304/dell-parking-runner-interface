@@ -141,6 +141,7 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       </div>
       
       <div className="mt-4">
+        <h5 className="font-medium text-sm mb-2">Recent Activity</h5>
         <ActivityFeed />
       </div>
     </div>
