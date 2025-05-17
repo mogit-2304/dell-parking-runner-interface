@@ -59,7 +59,7 @@ export const ActivityFeed = () => {
   };
   
   return (
-    <ScrollArea className="h-[300px] md:h-[300px] sm:h-[250px]">
+    <ScrollArea className="h-[300px]">
       <div className="p-2">
         {error && (
           <p className="text-center py-4 text-red-500">Failed to load activities</p>
