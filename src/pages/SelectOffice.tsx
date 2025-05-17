@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -77,7 +76,8 @@ const SelectOffice = () => {
       return;
     }
     
-    console.log('Updating occupancy for', selectedOffice.name, 'from', selectedOffice.occupancy, 'to', newOccupancy);
+    console.log('SelectOffice - handleOccupancyUpdate called with newOccupancy:', newOccupancy);
+    console.log('Current office state before update:', selectedOffice);
     
     // Create a versioned update to ensure we track changes
     const versionedUpdate = {
@@ -85,6 +85,8 @@ const SelectOffice = () => {
       occupancy: newOccupancy,
       version: (selectedOffice.version || 0) + 1
     };
+    
+    console.log('New office state to be applied:', versionedUpdate);
     
     // Update offices state
     setOffices(prevOffices => {
@@ -105,6 +107,12 @@ const SelectOffice = () => {
     // Update selected office separately
     setSelectedOffice(versionedUpdate);
     
+    // Display toast for debugging
+    toast({
+      title: "Office Updated",
+      description: `${selectedOffice.name} occupancy updated to ${newOccupancy}`,
+    });
+    
   }, [selectedOffice]);
 
   // Retry loading offices
@@ -117,6 +125,17 @@ const SelectOffice = () => {
       setLoading(false);
     }, 500);
   };
+
+  // Ensure selectedOffice stays in sync with offices array
+  useEffect(() => {
+    if (selectedOffice) {
+      const updatedOffice = offices.find(o => o.id === selectedOffice.id);
+      if (updatedOffice && updatedOffice.version !== selectedOffice.version) {
+        console.log('Syncing selectedOffice with updated office data:', updatedOffice);
+        setSelectedOffice(updatedOffice);
+      }
+    }
+  }, [offices, selectedOffice]);
 
   if (loading) {
     return (

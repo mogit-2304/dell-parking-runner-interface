@@ -25,6 +25,8 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
 
   // Handle increment occupancy (check-in)
   const handleIncrement = async () => {
+    console.log('handleIncrement called - Starting with occupancy:', office.occupancy);
+    
     // Check if at capacity
     if (office.occupancy >= office.capacity) {
       toast({
@@ -39,12 +41,13 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       // Update occupancy
       const newOccupancy = office.occupancy + 1;
       
-      console.log('handleIncrement called - Current:', office.occupancy, 'New:', newOccupancy);
+      console.log('handleIncrement - Current:', office.occupancy, 'New:', newOccupancy);
       
       // Record the activity
       recordActivity('check-in', office.name);
       
       // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
+      console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
       
       // Display toast confirmation
@@ -65,6 +68,8 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
 
   // Handle decrement occupancy (check-out)
   const handleDecrement = async () => {
+    console.log('handleDecrement called - Starting with occupancy:', office.occupancy);
+    
     // Check if at zero
     if (office.occupancy <= 0) {
       toast({
@@ -79,12 +84,13 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       // Update occupancy
       const newOccupancy = office.occupancy - 1;
       
-      console.log('handleDecrement called - Current:', office.occupancy, 'New:', newOccupancy);
+      console.log('handleDecrement - Current:', office.occupancy, 'New:', newOccupancy);
       
       // Record the activity
       recordActivity('check-out', office.name);
       
       // Call the onUpdate callback with the new occupancy - this is crucial for updating the UI
+      console.log('About to call onUpdate with newOccupancy:', newOccupancy);
       onUpdate(newOccupancy);
       
       // Display toast confirmation
@@ -108,7 +114,10 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
       <div className="flex flex-col space-y-4 mb-4 items-center">
         <div className="w-full">
           <SliderCTA
-            onComplete={handleIncrement}
+            onComplete={() => {
+              console.log('SliderCTA Enter onComplete triggered');
+              handleIncrement();
+            }}
             slideText="Slide to Enter →"
             releaseText="Release to Enter"
             successText="Vehicle Entered"
@@ -118,7 +127,10 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
         
         <div className="w-full">
           <SliderCTA
-            onComplete={handleDecrement}
+            onComplete={() => {
+              console.log('SliderCTA Exit onComplete triggered');
+              handleDecrement();
+            }}
             slideText="← Slide to Exit"
             releaseText="Release to Exit"
             successText="Vehicle Exited"

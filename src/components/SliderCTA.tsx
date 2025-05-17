@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   const [offsetX, setOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
+  const [hasTriggeredCallback, setHasTriggeredCallback] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const buttonSize = 64; // Button width (16 * 4 = 64px)
   const containerWidth = 288; // w-72 = 18rem = 288px
@@ -39,13 +41,25 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   // Reset after completion
   useEffect(() => {
     if (hasCompleted) {
+      // Only trigger the callback once per completion
+      if (!hasTriggeredCallback) {
+        console.log('SliderCTA: Executing onComplete inside effect');
+        // Small delay to ensure UI is updated before callback
+        setTimeout(() => {
+          onCompleteRef.current();
+        }, 100);
+        setHasTriggeredCallback(true);
+      }
+      
       const timer = setTimeout(() => {
         setHasCompleted(false);
         setOffsetX(0);
+        setHasTriggeredCallback(false); // Reset for next use
       }, successHoldTime);
+      
       return () => clearTimeout(timer);
     }
-  }, [hasCompleted, successHoldTime]);
+  }, [hasCompleted, successHoldTime, hasTriggeredCallback]);
   
   // Handle touch/mouse events
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
@@ -92,15 +106,8 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
         navigator.vibrate(200);
       }
       
-      // Execute the callback
-      console.log('SliderCTA: Triggering onComplete callback');
-      
-      // Use a direct callback for guaranteed execution
-      window.requestAnimationFrame(() => {
-        console.log('SliderCTA: Executing onComplete inside requestAnimationFrame');
-        onCompleteRef.current();
-      });
-      
+      console.log('SliderCTA: Drag completed successfully');
+      // The callback will be triggered in the useEffect
     } else {
       // Reset if not dragged enough
       setOffsetX(0);
