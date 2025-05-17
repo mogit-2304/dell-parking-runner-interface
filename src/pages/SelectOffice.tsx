@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -183,13 +184,13 @@ const SelectOffice = () => {
   return (
     <div className="flex min-h-screen flex-col bg-gray-100">
       <AppHeader />
-      <div className="flex-1 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-lg">
+      <div className="flex-1 p-4">
+        <Card className="w-full max-w-4xl mx-auto shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Select Office</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Parking Management</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div>
+            <div className="mb-6">
               <label className="font-medium text-sm mb-2 block">Office Location</label>
               <Select onValueChange={handleSelectOffice} value={selectedOffice?.id || ""}>
                 <SelectTrigger className="w-full">
@@ -205,25 +206,53 @@ const SelectOffice = () => {
               </Select>
             </div>
             
-            {selectedOffice && (
-              <div className="bg-white rounded-lg p-4 border">
-                <h3 className="font-bold text-xl mb-2">{selectedOffice.name}</h3>
-                
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="bg-gray-100 p-3 rounded">
-                    <div className="text-sm text-gray-500">Occupancy</div>
-                    <div className="text-2xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
+            {selectedOffice ? (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg p-6 border shadow-sm">
+                  <h3 className="font-bold text-xl mb-4">{selectedOffice.name} Parking Status</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="bg-gray-50 p-4 rounded-lg border">
+                      <div className="text-sm text-gray-500 mb-1">Current Occupancy</div>
+                      <div className="text-3xl font-bold">{selectedOffice.occupancy}/{selectedOffice.capacity}</div>
+                      <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${
+                            selectedOffice.occupancy / selectedOffice.capacity > 0.8 
+                              ? 'bg-red-500' 
+                              : selectedOffice.occupancy / selectedOffice.capacity > 0.5 
+                                ? 'bg-yellow-500' 
+                                : 'bg-green-500'
+                          }`}
+                          style={{ width: `${Math.min(100, (selectedOffice.occupancy / selectedOffice.capacity) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-50 p-4 rounded-lg border">
+                      <div className="text-sm text-gray-500 mb-1">Available Spaces</div>
+                      <div className="text-3xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
+                      <div className="text-sm text-gray-500 mt-2">
+                        {selectedOffice.capacity - selectedOffice.occupancy === 0 
+                          ? "Parking is full" 
+                          : `${Math.round(((selectedOffice.capacity - selectedOffice.occupancy) / selectedOffice.capacity) * 100)}% available`
+                        }
+                      </div>
+                    </div>
                   </div>
-                  <div className="bg-gray-100 p-3 rounded">
-                    <div className="text-sm text-gray-500">Available</div>
-                    <div className="text-2xl font-bold">{selectedOffice.capacity - selectedOffice.occupancy}</div>
+                  
+                  <div className="bg-gray-50 p-6 rounded-lg border">
+                    <h4 className="font-semibold text-lg mb-4">Vehicle Entry/Exit</h4>
+                    <OfficeActions 
+                      office={selectedOffice} 
+                      onUpdate={handleOccupancyUpdate} 
+                    />
                   </div>
                 </div>
-                
-                <OfficeActions 
-                  office={selectedOffice} 
-                  onUpdate={handleOccupancyUpdate} 
-                />
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-gray-50 rounded-lg border">
+                <p className="text-gray-500">Please select an office to manage parking</p>
               </div>
             )}
           </CardContent>

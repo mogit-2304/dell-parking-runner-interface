@@ -110,9 +110,9 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex flex-col space-y-4 mb-4 items-center">
-        <div className="w-full">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4">
+        <div>
           <SliderCTA
             onComplete={() => {
               console.log('SliderCTA Enter onComplete triggered');
@@ -125,7 +125,7 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
           />
         </div>
         
-        <div className="w-full">
+        <div>
           <SliderCTA
             onComplete={() => {
               console.log('SliderCTA Exit onComplete triggered');
@@ -140,7 +140,8 @@ const OfficeActions = ({ office, onUpdate }: OfficeActionsProps) => {
         </div>
       </div>
       
-      <div className="mt-2">
+      <div className="mt-4">
+        <h5 className="font-medium text-sm mb-2">Recent Activity</h5>
         <ActivityFeed />
       </div>
     </div>
