@@ -16,10 +16,9 @@ const AppHeader = () => {
       // Remove authentication token
       localStorage.removeItem('guard-token');
       
-      // Show toast notification
+      // Show simplified toast notification
       toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your session",
+        title: "Logout successful",
       });
       
       // Navigate back to login page
