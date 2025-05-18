@@ -36,10 +36,11 @@ android {
         buildConfig true
     }
     
-    // Explicitly define all attribute variants to avoid "No matching variant" error
-    androidComponents {
-        beforeVariants { variantBuilder ->
-            variantBuilder.enableUnitTest = true
+    // Use testOptions instead of androidComponents.beforeVariants
+    testOptions {
+        unitTests.all {
+            // This enables unit tests for all build variants
+            enabled = true
         }
     }
 }
