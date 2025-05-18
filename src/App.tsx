@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,13 @@ import GuardLogin from "./pages/GuardLogin";
 import SelectOffice from "./pages/SelectOffice";
 import { useEffect } from "react";
 import { LanguageProvider } from "./context/LanguageContext";
+
+// Create a style for mobile viewport height adjustment
+const appStyle = {
+  height: '100%',
+  width: '100%',
+  overflow: 'auto'
+};
 
 const queryClient = new QueryClient();
 
@@ -67,29 +75,43 @@ const App = () => {
     };
     
     window.addEventListener('storage', handleStorageChange);
+    
+    // Set up mobile viewport height fix for iOS/Android
+    const setVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    // Initial setup and event listener for resize
+    setVh();
+    window.addEventListener('resize', setVh);
+    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('resize', setVh);
     };
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<GuardLogin />} />
-              <Route path="/select-office" element={<ProtectedRoute element={<SelectOffice />} />} />
-              <Route path="/home" element={<ProtectedRoute element={<Index />} />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+    <div style={appStyle}>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<GuardLogin />} />
+                <Route path="/select-office" element={<ProtectedRoute element={<SelectOffice />} />} />
+                <Route path="/home" element={<ProtectedRoute element={<Index />} />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </LanguageProvider>
+      </QueryClientProvider>
+    </div>
   );
 };
 
