@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.1b4623686e0d4997adf7a98686ac342c',
+  appId: 'com.lovable.dellparkingrunner',
   appName: 'dell-parking-runner-interface',
   webDir: 'dist',
   server: {
