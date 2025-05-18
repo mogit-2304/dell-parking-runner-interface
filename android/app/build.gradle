@@ -27,6 +27,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    
+    // Add this to ensure the plugin can be found in both debug and release variants
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 repositories {
