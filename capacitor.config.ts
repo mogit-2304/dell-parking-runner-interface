@@ -17,6 +17,9 @@ const config: CapacitorConfig = {
       keystoreAliasPassword: undefined,
       releaseType: undefined
     }
+  },
+  plugins: {
+    // Add any plugin configurations if needed
   }
 };
 
