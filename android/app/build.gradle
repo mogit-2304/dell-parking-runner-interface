@@ -18,6 +18,10 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // Debug build configuration
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -28,9 +32,15 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     
-    // Add this to ensure the plugin can be found in both debug and release variants
     buildFeatures {
         buildConfig true
+    }
+    
+    // Explicitly define all attribute variants to avoid "No matching variant" error
+    androidComponents {
+        beforeVariants { variantBuilder ->
+            variantBuilder.enableUnitTest = true
+        }
     }
 }
 
@@ -50,8 +60,11 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.5"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
     
-    // Use a specific configuration for the plugins to ensure variant compatibility
-    implementation(project(':capacitor-cordova-android-plugins')) {
+    // Define both debug and release configurations for the plugins
+    debugImplementation(project(':capacitor-cordova-android-plugins')) {
+        transitive = true
+    }
+    releaseImplementation(project(':capacitor-cordova-android-plugins')) {
         transitive = true
     }
 }
