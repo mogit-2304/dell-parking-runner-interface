@@ -17,8 +17,8 @@ const mockApi = {
   validatePhoneNumber: (phone: string): Promise<{valid: boolean}> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // For testing: only numbers starting with "9" are "registered"
-        const isValid = phone.startsWith('9') && phone.length === 10;
+        // Updated: Accept phone numbers starting with 7, 8, or 9 (instead of just 9)
+        const isValid = (phone.startsWith('7') || phone.startsWith('8') || phone.startsWith('9')) && phone.length === 10;
         resolve({ valid: isValid });
       }, 800);
     });
