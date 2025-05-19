@@ -61,8 +61,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.5"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
     
-    // Simplified dependency for plugins - this works with proper variant configuration
-    implementation project(':capacitor-cordova-android-plugins')
+    // Fix: Use implementation instead of project to reference capacitor-cordova-android-plugins
+    implementation ':capacitor-cordova-android-plugins'
 }
 
 apply from: 'capacitor.build.gradle'
