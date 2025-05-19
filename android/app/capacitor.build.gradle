@@ -10,6 +10,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    // Fix: Use project() instead of implementation()
     implementation project(':capacitor-cordova-android-plugins')
 }
 
