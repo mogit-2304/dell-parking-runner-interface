@@ -1,3 +1,4 @@
+
 export const en = {
   parkingFull: "Parking Full",
   parkingAtCapacity: (officeName: string) => `Parking at ${officeName} is at full capacity.`,
@@ -31,6 +32,21 @@ export const en = {
   invalidVehicleFormat: "Invalid format. Please use XX NN XX NNNN (Example: KA 01 AB 1234)",
   confirm: "Confirm",
   skip: "Skip",
+  // Restored keys
+  recentActivity: "Recent Activity",
+  logoutSuccessful: "Logged Out Successfully",
+  logoutFailed: "Logout Failed",
+  logoutIssue: "There was an issue during logout. Please try again.",
+  officeLocation: "Office Location",
+  selectOffice: "Select Office",
+  parkingStatus: (officeName: string) => `Parking Status: ${officeName}`,
+  currentOccupancy: "Current Occupancy",
+  occupiedPercentage: (percentage: number) => `${percentage}% Occupied`,
+  availableSlots: "Available Slots",
+  noSpaces: "No Spaces Available",
+  availablePercentage: (percentage: number) => `${percentage}% Available`,
+  welcome: "Welcome to DELL Parking Management",
+  useOptions: "Please select an option from the menu",
 };
 
 export const es = {
@@ -66,4 +82,19 @@ export const es = {
   invalidVehicleFormat: "Formato inválido. Use XX NN XX NNNN (Ejemplo: KA 01 AB 1234)",
   confirm: "Confirmar",
   skip: "Omitir",
+  // Restored keys
+  recentActivity: "Actividad Reciente",
+  logoutSuccessful: "Sesión Cerrada Exitosamente",
+  logoutFailed: "Error al Cerrar Sesión",
+  logoutIssue: "Hubo un problema al cerrar la sesión. Por favor, inténtelo de nuevo.",
+  officeLocation: "Ubicación de la Oficina",
+  selectOffice: "Seleccionar Oficina",
+  parkingStatus: (officeName: string) => `Estado del Estacionamiento: ${officeName}`,
+  currentOccupancy: "Ocupación Actual",
+  occupiedPercentage: (percentage: number) => `${percentage}% Ocupado`,
+  availableSlots: "Espacios Disponibles",
+  noSpaces: "No Hay Espacios Disponibles",
+  availablePercentage: (percentage: number) => `${percentage}% Disponible`,
+  welcome: "Bienvenido a la Gestión de Estacionamiento DELL",
+  useOptions: "Por favor, seleccione una opción del menú",
 };
