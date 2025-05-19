@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Check, Plus, Minus, Bug } from 'lucide-react';
 
@@ -19,7 +20,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   slideText = "Slide to Enter →",
   releaseText = "Release to Enter",
   successText = "Vehicle Entered",
-  accentColor = "#0937b2", // Using the brand primary color
+  accentColor = "#0937b2", // Using the requested color
   successHoldTime = 1000,
   disabled = false,
   direction = 'ltr', // Default is left to right
@@ -31,16 +32,36 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasTriggeredCallback, setHasTriggeredCallback] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [sliderWidth, setSliderWidth] = useState(288); // Default width
   const buttonSize = 64; // Button width (16 * 4 = 64px)
-  const containerWidth = 288; // w-72 = 18rem = 288px
-  const maxDragDistance = containerWidth - buttonSize; // Maximum drag distance
-  const completionThreshold = 224; // New threshold at 224px for action triggering
+  const maxDragDistance = sliderWidth - buttonSize; // Maximum drag distance
+  const completionThreshold = Math.max(sliderWidth * 0.78, 224); // Threshold at 78% or min 224px
   const onCompleteRef = useRef(onComplete);
   
   // Update ref when onComplete changes
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+  
+  // Measure container width on mount and resize
+  useEffect(() => {
+    const updateSliderWidth = () => {
+      if (sliderRef.current) {
+        const newWidth = sliderRef.current.clientWidth;
+        setSliderWidth(newWidth);
+      }
+    };
+    
+    // Initial measurement
+    updateSliderWidth();
+    
+    // Listen for resize events
+    window.addEventListener('resize', updateSliderWidth);
+    
+    return () => {
+      window.removeEventListener('resize', updateSliderWidth);
+    };
+  }, []);
   
   // Reset after completion
   useEffect(() => {
@@ -209,7 +230,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
           <div>{Math.round(completionPercent)}%</div>
           
           <div>Threshold:</div>
-          <div>{completionThreshold}px ({Math.round((completionThreshold/maxDragDistance) * 100)}%)</div>
+          <div>{Math.round(completionThreshold)}px ({Math.round((completionThreshold/maxDragDistance) * 100)}%)</div>
           
           <div>State:</div>
           <div>
@@ -218,6 +239,9 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
           
           <div>Success Count:</div>
           <div>{counter}</div>
+          
+          <div>Container Width:</div>
+          <div>{sliderWidth}px</div>
         </div>
       </div>
     );
@@ -228,7 +252,7 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
       {/* Main slider container */}
       <div 
         ref={sliderRef}
-        className={`relative rounded-full h-16 w-72 overflow-hidden ${
+        className={`relative rounded-full h-16 w-full max-w-[288px] overflow-hidden ${
           hasCompleted ? '' : 'bg-opacity-20'
         } transition-colors duration-300`}
         style={{ 
@@ -261,14 +285,14 @@ const SliderCTA: React.FC<SliderCTAProps> = ({
         <div 
           className={`absolute inset-0 flex justify-center items-center text-white font-medium ${
             hasCompleted ? 'opacity-0' : 'opacity-100'
-          } transition-opacity duration-300`}
+          } transition-opacity duration-300 text-sm sm:text-base`}
         >
           {offsetX > maxDragDistance / 2 ? releaseText : slideText}
         </div>
       
         {/* Success message */}
         {hasCompleted && (
-          <div className="absolute inset-0 flex justify-center items-center text-white font-medium">
+          <div className="absolute inset-0 flex justify-center items-center text-white font-medium text-sm sm:text-base">
             {successText}
           </div>
         )}

@@ -14,9 +14,10 @@ interface OfficeActionsProps {
     capacity: number;
     occupancy: number;
   };
+  showDebugInfo?: boolean;
 }
 
-const OfficeActions = ({ office }: OfficeActionsProps) => {
+const OfficeActions = ({ office, showDebugInfo }: OfficeActionsProps) => {
   const { t } = useTranslation();
   const { recordActivity } = useActivityFeed();
   const [showVehicleModal, setShowVehicleModal] = useState(false);
@@ -163,7 +164,7 @@ const OfficeActions = ({ office }: OfficeActionsProps) => {
       
       setShowVehicleModal(false);
     });
-  }, [currentActivityType, incrementOccupancy, decrementOccupancy, t, office, recordActivity, checkInCount, checkOutCount, persistCounterState]);
+  }, [currentActivityType, incrementOccupancy, decrementOccupancy, t, office, recordActivity, checkInCount, checkOutCount]);
 
   return (
     <div className="bg-white rounded-lg p-6 border shadow-sm">
@@ -171,32 +172,34 @@ const OfficeActions = ({ office }: OfficeActionsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <div className="bg-gray-50 p-4 rounded-lg border">
           <div className="text-sm text-gray-500 mb-1">{t('vehicleEntry')}</div>
-          <div className="mt-4">
+          <div className="mt-4 max-w-full overflow-hidden">
             <SliderCTA
               onComplete={handleVehicleEntry}
               slideText={t('slideToEnter')}
               releaseText={t('releaseToEnter')}
               successText={t('vehicleProcessing')}
-              accentColor="#22c55e" // Green
+              accentColor="#0937b2" 
               direction="ltr"
               disabled={isLoading || isFull}
               counter={checkInCount}
+              showDebugInfo={showDebugInfo}
             />
           </div>
         </div>
         
         <div className="bg-gray-50 p-4 rounded-lg border">
           <div className="text-sm text-gray-500 mb-1">{t('vehicleExit')}</div>
-          <div className="mt-4">
+          <div className="mt-4 max-w-full overflow-hidden">
             <SliderCTA
               onComplete={handleVehicleExit}
               slideText={t('slideToExit')}
               releaseText={t('releaseToExit')}
               successText={t('vehicleProcessing')}
-              accentColor="#ef4444" // Red
+              accentColor="#0937b2"
               direction="rtl"
               disabled={isLoading || isEmpty}
               counter={checkOutCount}
+              showDebugInfo={showDebugInfo}
             />
           </div>
         </div>

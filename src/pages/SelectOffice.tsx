@@ -34,35 +34,6 @@ const SelectOffice = () => {
     }
   }, [offices, selectedOffice]);
 
-  // Handle occupancy update
-  const handleOccupancyUpdate = useCallback((newOccupancy: number) => {
-    if (!selectedOffice) {
-      console.error('Cannot update occupancy: No office selected');
-      return;
-    }
-    
-    console.log('SelectOffice - handleOccupancyUpdate called with newOccupancy:', newOccupancy);
-    
-    // Update office occupancy in Supabase
-    updateOfficeOccupancy(selectedOffice.id, newOccupancy)
-      .then(success => {
-        if (success) {
-          // Update selected office state
-          setSelectedOffice(prev => {
-            if (prev) {
-              return { ...prev, occupancy: newOccupancy };
-            }
-            return prev;
-          });
-          
-          // Display toast for confirmation - removed the title, keeping only the description
-          toast({
-            description: t('occupancyUpdated', selectedOffice.name, newOccupancy),
-          });
-        }
-      });
-  }, [selectedOffice, updateOfficeOccupancy, t]);
-
   // Retry loading offices
   const handleRetry = () => {
     fetchOffices();
@@ -130,8 +101,7 @@ const SelectOffice = () => {
                 <div className="bg-gray-50 p-6 rounded-lg border">
                   <h4 className="font-semibold text-lg mb-4">{t('vehicleEntryExit')}</h4>
                   <OfficeActions 
-                    office={selectedOffice} 
-                    onUpdate={handleOccupancyUpdate}
+                    office={selectedOffice}
                     showDebugInfo={showDebugInfo}
                   />
                 </div>

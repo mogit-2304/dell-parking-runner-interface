@@ -33,13 +33,13 @@ const VehicleNumberModal: React.FC<VehicleNumberModalProps> = ({
         <DialogHeader>
           <DialogTitle>
             {activityType === 'check-in' 
-              ? t('vehicleNumberEntranceTitle', 'Enter Vehicle Number') 
-              : t('vehicleNumberExitTitle', 'Enter Vehicle Number')}
+              ? t('vehicleNumberEntranceTitle') 
+              : t('vehicleNumberExitTitle')}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <Input
-            placeholder={t('vehicleNumberPlaceholder', 'e.g., ABC123')}
+            placeholder={t('vehicleNumberPlaceholder')}
             value={vehicleNumber}
             onChange={(e) => setVehicleNumber(e.target.value)}
             className="mb-2"
@@ -47,16 +47,16 @@ const VehicleNumberModal: React.FC<VehicleNumberModalProps> = ({
           />
           <p className="text-sm text-muted-foreground">
             {activityType === 'check-in' 
-              ? t('vehicleNumberEntranceDescription', 'Please enter the vehicle number for vehicle entry.')
-              : t('vehicleNumberExitDescription', 'Please enter the vehicle number for vehicle exit.')}
+              ? t('vehicleNumberEntranceDescription')
+              : t('vehicleNumberExitDescription')}
           </p>
         </div>
         <DialogFooter className="flex justify-between sm:justify-between">
           <Button variant="outline" onClick={handleSkip}>
-            {t('skip', 'Skip')}
+            {t('skip')}
           </Button>
           <Button onClick={handleConfirm}>
-            {t('confirm', 'Confirm')}
+            {t('confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

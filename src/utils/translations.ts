@@ -1,199 +1,85 @@
+// Add new entries to the existing translations file
+// or create if not exists
 
-export const translations = {
-  english: {
-    // App Header
-    logout: "Logout",
+const translations = {
+  en: {
+    parkingLotFull: 'Parking lot is full.',
+    parkingLotEmpty: 'Parking lot is empty.',
+    vehicleEntered: 'Vehicle entered.',
+    vehicleExited: 'Vehicle exited.',
+    operationFailed: 'Operation failed.',
+    officeActions: 'Office Actions',
+    vehicleEntry: 'Vehicle Entry',
+    vehicleExit: 'Vehicle Exit',
+    slideToEnter: 'Slide to Enter →',
+    slideToExit: 'Slide to Exit ←',
+    releaseToEnter: 'Release to Enter',
+    releaseToExit: 'Release to Exit',
+    vehicleProcessing: 'Vehicle Processing...',
+    occupancyUpdated: 'Occupancy updated for {0} to {1}.',
+    pleaseSelectOffice: 'Please select an office.',
     
-    // Login Page
-    guardLogin: "Guard Login",
-    enterPhoneDesc: "Enter your registered phone number to receive a one-time password.",
-    enterCodeDesc: (phone: string) => `Enter the 6-digit code sent to ${phone}`,
-    phoneNumber: "Phone Number",
-    phoneNumberPlaceholder: "Enter 10-digit phone number",
-    oneTimePassword: "One-Time Password",
-    otpExpires: (time: string) => `OTP expires in ${time}`,
-    sendOTP: "Send OTP",
-    verifying: "Verifying...",
-    verifyOTP: "Verify OTP",
-    changePhoneNumber: "Change Phone Number",
-    resendOTP: "Resend OTP",
-    
-    // Login error messages
-    phoneNotRecognized: "Phone number not recognized",
-    otpExpired: "OTP expired. Please request a new one.",
-    invalidOTP: "Invalid OTP",
-    tooManyAttempts: "Too many attempts—try again in 15 minutes",
-    accountLocked: "Account is locked. Please try again later.",
-    unexpectedError: "An unexpected error occurred. Please try again.",
-    
-    // Login toast messages
-    otpSent: "OTP Sent",
-    otpSentTo: (phone: string) => `A one-time password has been sent to ${phone}`,
-    newOtpSent: "New OTP Sent",
-    newOtpSentTo: (phone: string) => `A new one-time password has been sent to ${phone}`,
-    loginSuccessful: "Login Successful",
-    loginSuccessDesc: "You have been successfully logged in.",
-    attemptsRemaining: (attempts: number) => `${attempts} attempts remaining before lockout.`,
-    
-    // Home Page
-    welcome: "Welcome to DELL Parking Management",
-    useOptions: "Use the options above to manage parking spaces",
-    
-    // Select Office Page
-    officeLocation: "Office Location",
-    selectOffice: "Select an office",
-    parkingStatus: (name: string) => `${name} Parking Status`,
-    currentOccupancy: "Current Parking Occupancy",
-    parkingFull: "Parking is full",
-    parkingLotFull: "Parking lot is full",
-    parkingLotEmpty: "Parking lot is empty",
-    operationFailed: "Operation failed",
-    occupiedPercentage: (percentage: number) => `${percentage}% occupied`,
-    availableSlots: "Available Parking Slots",
-    noSpaces: "No spaces available",
-    availablePercentage: (percentage: number) => `${percentage}% available`,
-    vehicleEntryExit: "Vehicle Entry/Exit",
-    vehicleEntry: "Vehicle Entry",
-    vehicleExit: "Vehicle Exit",
-    pleaseSelectOffice: "Please select an office to manage parking",
-    
-    // Select Office toast messages
-    officeUpdated: "", // Removed "Office Updated" text
-    occupancyUpdated: (name: string, number: number) => `${name} occupancy updated to ${number}`,
-    
-    // Office Actions Component
-    slideToEnter: "Slide to Enter →",
-    releaseToEnter: "Release to Enter",
-    vehicleEntered: "Vehicle Entered",
-    slideToExit: "← Slide to Exit",
-    releaseToExit: "Release to Exit",
-    vehicleExited: "Vehicle Exited",
-    recentActivity: "Recent Activity",
-    officeActions: "Office Actions",
-    vehicleProcessing: "Processing...",
-    
-    // Vehicle Number Modal
-    skip: "Skip",
-    confirm: "Confirm",
-    vehicleNumberPlaceholder: "e.g., ABC123",
-    vehicleNumberEntranceTitle: "Enter Vehicle Number",
-    vehicleNumberExitTitle: "Enter Vehicle Number",
-    vehicleNumberEntranceDescription: "Please enter the vehicle number for vehicle entry.",
-    vehicleNumberExitDescription: "Please enter the vehicle number for vehicle exit.",
-    
-    // Office Actions toast messages
-    noVehiclesToExit: "No vehicles to exit",
-    parkingAtCapacity: (name: string) => `${name} parking is at capacity.`,
-    parkingEmpty: (name: string) => `${name} parking is already empty.`,
-    errorUpdatingOccupancy: "Error updating occupancy",
-    failedToUpdate: "Failed to update parking occupancy. Please try again.",
-    
-    // Not Found Page
-    notFoundCode: "404",
-    pageNotFound: "Oops! Page not found",
-    returnHome: "Return to Home",
-    
-    // App Header toast messages
-    logoutSuccessful: "Logout successful",
-    logoutFailed: "Logout failed",
-    logoutIssue: "There was an issue logging out. Please try again."
+    // Vehicle modal translations
+    vehicleNumberEntranceTitle: 'Enter Vehicle Number',
+    vehicleNumberExitTitle: 'Enter Vehicle Number',
+    vehicleNumberPlaceholder: 'e.g., ABC123',
+    vehicleNumberEntranceDescription: 'Please enter the vehicle number for vehicle entry.',
+    vehicleNumberExitDescription: 'Please enter the vehicle number for vehicle exit.',
+    skip: 'Skip',
+    confirm: 'Confirm'
   },
-  kannada: {
-    // App Header
-    logout: "ಲಾಗ್ ಔಟ್",
-    
-    // Login Page
-    guardLogin: "ಗಾರ್ಡ್ ಲಾಗಿನ್",
-    enterPhoneDesc: "ಒಂದು-ಸಮಯ ಗುಪ್ತಪದ ಪಡೆಯಲು ದಯವಿಟ್ಟು ನಿಮ್ಮ ನೋಂದಾಯಿತ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
-    enterCodeDesc: (phone: string) => `${phone} ಗೆ ಕಳುಹಿಸಲಾದ 6-ಅಂಕಿ ಕೋಡ್ ಅನ್ನು ನಮೂದಿಸಿ.`,
-    phoneNumber: "ಫೋನ್ ಸಂಖ್ಯೆ",
-    phoneNumberPlaceholder: "10-ಅಂಕಿಯ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ",
-    oneTimePassword: "ಒಂದು-ಸಮಯ ಗುಪ್ತಪದ",
-    otpExpires: (time: string) => `OTP ಅಮಾನ್ಯವಾಗಲು ${time} ಅಗಿದೆ`,
-    sendOTP: "OTP ಕಳುಹಿಸಿ",
-    verifying: "ಸರಿಹೊಂದುತ್ತಿದೆ...",
-    verifyOTP: "OTP ಪರಿಶೀಲಿಸಿ",
-    changePhoneNumber: "ಫೋನ್ ಸಂಖ್ಯೆ ಬದಲಿಸಿ",
-    resendOTP: "OTP ಮರುಕಳುಹಿಸಿ",
-    
-    // Login error messages
-    phoneNotRecognized: "ಫೋನ್ ಸಂಖ್ಯೆ ಗುರುತಿಸಲಾಗಲಿಲ್ಲ",
-    otpExpired: "OTP ಅವಧಿ ಮುಗಿದಿದೆ. ದಯವಿಟ್ಟು ಹೊಸದು ಕೇಳಿ.",
-    invalidOTP: "ಅಮಾನ್ಯ OTP",
-    tooManyAttempts: "ಪ್ರಯತ್ನಗಳು ಹೆಚ್ಚು—15 ನಿಮಿಷಗಳಲ್ಲಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
-    accountLocked: "ಖಾತೆ ಲಾಕ್ ಆಗಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-    unexpectedError: "ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-    
-    // Login toast messages
-    otpSent: "OTP ಕಳುಹಿಸಲಾಗಿದೆ",
-    otpSentTo: (phone: string) => `ಒಂದು-ಸಮಯ ಗುಪ್ತಪದವನ್ನು ${phone} ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ`,
-    newOtpSent: "New OTP Sent",
-    newOtpSentTo: (phone: string) => `ಹೊಸ ಒಂದು-ಸಮಯ ಗುಪ್ತಪದವನ್ನು ${phone} ಗೆ ಕಳುಹಿಸಲಾಗಿದೆ`,
-    loginSuccessful: "ಲಾಗಿನ್ ಯಶಸ್ವಿ",
-    loginSuccessDesc: "ನೀವು ಯಶಸ್ವಿಯಾಗಿ ಲಾಗಿನ್ ಆಗಿದ್ದೀರಿ.",
-    attemptsRemaining: (attempts: number) => `ಲಾಕ್‌ಔಟ್‌ಗೂ ಮುನ್ನ ${attempts} ಪ್ರಯತ್ನಗಳಿವೆ.`,
-    
-    // Home Page
-    welcome: "DELL Parking Management ಗೆ ಸುಸ್ವಾಗತ",
-    useOptions: "ಪಾರ್ಕಿಂಗ್ ಸ್ಥಳಗಳನ್ನು ನಿರ್ವಹಿಸಲು ಮೇಲಿನ ಆಯ್ಕೆಗಳನ್ನು ಬಳಸಿ",
-    
-    // Select Office Page
-    officeLocation: "ಕಚೇರಿ ಸ್ಥಳ",
-    selectOffice: "ಒಂದು ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
-    parkingStatus: (name: string) => `${name} Parking Status`,
-    currentOccupancy: "ಪ್ರಸ್ತುತ ಪಾರ್ಕಿಂಗ್ ಭರ್ತಿ",
-    parkingFull: "Parking is full",
-    parkingLotFull: "ಪಾರ್ಕಿಂಗ್ ಲಾಟ್ ತುಂಬಿದೆ",
-    parkingLotEmpty: "ಪಾರ್ಕಿಂಗ್ ಲಾಟ್ ಖಾಲಿಯಾಗಿದೆ",
-    operationFailed: "ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ",
-    occupiedPercentage: (percentage: number) => `${percentage}% occupied`,
-    availableSlots: "ಲಭ್ಯವಿರುವ ಪಾರ್ಕಿಂಗ್ ಸ್ಲಾಟ್‌ಗಳು",
-    noSpaces: "ಯಾವುದೇ ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ",
-    availablePercentage: (percentage: number) => `${percentage}% available`,
-    vehicleEntryExit: "ವಾಹನ ಪ್ರವೇಶ/ನಿರ್ಗಮನ",
-    vehicleEntry: "ವಾಹನ ಪ್ರವೇಶ",
-    vehicleExit: "ವಾಹನ ನಿರ್ಗಮನ",
-    pleaseSelectOffice: "ಪಾರ್ಕಿಂಗ್ ನಿರ್ವಹಿಸಲು ದಯವಿಟ್ಟು ಒಂದು ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
-    
-    // Select Office toast messages
-    officeUpdated: "", // Removed "Office Updated" text
-    occupancyUpdated: (name: string, number: number) => `${name} occupancy updated to ${number}`,
-    
-    // Office Actions Component
-    slideToEnter: "Slide to Enter →",
-    releaseToEnter: "ಪ್ರವೇಶಿಸಲು ಬಿಡುಗಡೆ ಮಾಡಿ",
-    vehicleEntered: "ವಾಹನ ಪ್ರವೇಶಿಸಿತು",
-    slideToExit: "← Slide to Exit",
-    releaseToExit: "ನಿರ್ಗಮನಕ್ಕೆ ಬಿಡುಗಡೆ ಮಾಡಿ",
-    vehicleExited: "ವಾಹನ ನಿರ್ಗಮನ ಮಾಡಿತು",
-    recentActivity: "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
-    officeActions: "ಕಚೇರಿ ಕ್ರಿಯೆಗಳು",
-    vehicleProcessing: "ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ...",
-    
-    // Vehicle Number Modal
-    skip: "ಸ್ಕಿಪ್",
-    confirm: "ದೃಢೀಕರಿಸಿ",
-    vehicleNumberPlaceholder: "ಉದಾ., ABC123",
-    vehicleNumberEntranceTitle: "ವಾಹನ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
-    vehicleNumberExitTitle: "ವಾಹನ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
-    vehicleNumberEntranceDescription: "ದಯವಿಟ್ಟು ವಾಹನ ಪ್ರವೇಶಕ್ಕಾಗಿ ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
-    vehicleNumberExitDescription: "ದಯವಿಟ್ಟು ವಾಹನ ನಿರ್ಗಮನಕ್ಕಾಗಿ ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
-    
-    // Office Actions toast messages
-    noVehiclesToExit: "ನಿರ್ಗಮನಕ್ಕೆ ಯಾವುದೇ ವಾಹನಗಳಿಲ್ಲ",
-    parkingAtCapacity: (name: string) => `${name} parking is at capacity.`,
-    parkingEmpty: (name: string) => `${name} parking is already empty.`,
-    errorUpdatingOccupancy: "Error updating occupancy",
-    failedToUpdate: "Failed to update parking occupancy. Please try again.",
-    
-    // Not Found Page
-    notFoundCode: "404",
-    pageNotFound: "Oops! Page not found",
-    returnHome: "Return to Home",
-    
-    // App Header toast messages
-    logoutSuccessful: "Logout successful",
-    logoutFailed: "Logout failed",
-    logoutIssue: "There was an issue logging out. Please try again."
+  es: {
+    parkingLotFull: 'El estacionamiento está lleno.',
+    parkingLotEmpty: 'El estacionamiento está vacío.',
+    vehicleEntered: 'Vehículo ingresado.',
+    vehicleExited: 'Vehículo salió.',
+    operationFailed: 'Operación fallida.',
+    officeActions: 'Acciones de Oficina',
+    vehicleEntry: 'Entrada de Vehículo',
+    vehicleExit: 'Salida de Vehículo',
+    slideToEnter: 'Desliza para Entrar →',
+    slideToExit: 'Desliza para Salir ←',
+    releaseToEnter: 'Suelta para Entrar',
+    releaseToExit: 'Suelta para Salir',
+    vehicleProcessing: 'Procesando Vehículo...',
+    occupancyUpdated: 'Ocupación actualizada para {0} a {1}.',
+    pleaseSelectOffice: 'Por favor, seleccione una oficina.',
+
+    // Vehicle modal translations
+    vehicleNumberEntranceTitle: 'Ingrese el Número de Vehículo',
+    vehicleNumberExitTitle: 'Ingrese el Número de Vehículo',
+    vehicleNumberPlaceholder: 'ej. ABC123',
+    vehicleNumberEntranceDescription: 'Por favor, ingrese el número de vehículo para la entrada.',
+    vehicleNumberExitDescription: 'Por favor, ingrese el número de vehículo para la salida.',
+    skip: 'Omitir',
+    confirm: 'Confirmar'
+  },
+  fr: {
+    parkingLotFull: 'Le parking est complet.',
+    parkingLotEmpty: 'Le parking est vide.',
+    vehicleEntered: 'Véhicule entré.',
+    vehicleExited: 'Véhicule sorti.',
+    operationFailed: 'Opération échouée.',
+    officeActions: 'Actions de Bureau',
+    vehicleEntry: 'Entrée de Véhicule',
+    vehicleExit: 'Sortie de Véhicule',
+    slideToEnter: 'Glisser pour Entrer →',
+    slideToExit: 'Glisser pour Sortir ←',
+    releaseToEnter: 'Relâcher pour Entrer',
+    releaseToExit: 'Relâcher pour Sortir',
+    vehicleProcessing: 'Traitement du Véhicule...',
+    occupancyUpdated: 'Occupation mise à jour pour {0} à {1}.',
+    pleaseSelectOffice: 'Veuillez sélectionner un bureau.',
+
+    // Vehicle modal translations
+    vehicleNumberEntranceTitle: 'Entrez le Numéro du Véhicule',
+    vehicleNumberExitTitle: 'Entrez le Numéro du Véhicule',
+    vehicleNumberPlaceholder: 'ex. ABC123',
+    vehicleNumberEntranceDescription: 'Veuillez entrer le numéro du véhicule pour l\'entrée.',
+    vehicleNumberExitDescription: 'Veuillez entrer le numéro du véhicule pour la sortie.',
+    skip: 'Passer',
+    confirm: 'Confirmer'
   }
 };
+
+export default translations;
