@@ -1,9 +1,14 @@
 
 import { useLanguage } from '@/context/LanguageContext';
-import { translations } from '@/utils/translations';
+import { en, es } from '@/utils/translations';
 
 export const useTranslation = () => {
   const { language } = useLanguage();
+  
+  const translations = {
+    english: en,
+    spanish: es
+  };
   
   const t = <K extends keyof typeof translations['english']>(
     key: K,

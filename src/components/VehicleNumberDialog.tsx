@@ -10,7 +10,7 @@ interface VehicleNumberDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (vehicleNumber: string) => void;
-  actionType: 'entry' | 'exit';
+  actionType: 'check-in' | 'check-out';
 }
 
 const VehicleNumberDialog = ({ isOpen, onClose, onConfirm, actionType }: VehicleNumberDialogProps) => {
@@ -65,7 +65,7 @@ const VehicleNumberDialog = ({ isOpen, onClose, onConfirm, actionType }: Vehicle
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CarFront className="h-5 w-5" />
-            {actionType === 'entry' ? t('vehicleEntryDetails') : t('vehicleExitDetails')}
+            {actionType === 'check-in' ? t('vehicleEntryDetails') : t('vehicleExitDetails')}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">

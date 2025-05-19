@@ -21,7 +21,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
   const [exitCount, setExitCount] = useState(0);
   const [showVehicleDialog, setShowVehicleDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<{
-    type: 'entry' | 'exit';
+    type: 'check-in' | 'check-out';
     newOccupancy: number;
   } | null>(null);
 
@@ -72,7 +72,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       // Store pending action and show vehicle dialog
       setPendingAction({
-        type: 'entry',
+        type: 'check-in',
         newOccupancy
       });
       setShowVehicleDialog(true);
@@ -109,7 +109,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       // Store pending action and show vehicle dialog
       setPendingAction({
-        type: 'exit',
+        type: 'check-out',
         newOccupancy
       });
       setShowVehicleDialog(true);
@@ -135,7 +135,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       recordActivity(type, office.name, office.id, vehicleNumber);
       
       // Update the entry/exit counter
-      if (type === 'entry') {
+      if (type === 'check-in') {
         setEntryCount(prevCount => prevCount + 1);
       } else {
         setExitCount(prevCount => prevCount + 1);
@@ -147,7 +147,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       // Display toast confirmation
       toast({
-        title: type === 'entry' ? t('vehicleEntered') : t('vehicleExited'),
+        title: type === 'check-in' ? t('vehicleEntered') : t('vehicleExited'),
         description: vehicleNumber ? `${t('vehicleNumber')}: ${vehicleNumber}` : "",
       });
       
@@ -208,7 +208,7 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
         isOpen={showVehicleDialog}
         onClose={() => setShowVehicleDialog(false)}
         onConfirm={handleVehicleDialogConfirm}
-        actionType={pendingAction?.type || 'entry'}
+        actionType={pendingAction?.type || 'check-in'}
       />
     </div>
   );
