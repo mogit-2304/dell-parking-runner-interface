@@ -6,6 +6,7 @@ import SliderCTA from './SliderCTA';
 import { Office } from '@/types/officeTypes';
 import { useTranslation } from '@/hooks/useTranslation';
 import { ActivityDropdown } from './ActivityDropdown';
+import VehicleNumberDialog from './VehicleNumberDialog';
 
 interface OfficeActionsProps {
   office: Office;
@@ -18,6 +19,11 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
   const { t } = useTranslation();
   const [entryCount, setEntryCount] = useState(0);
   const [exitCount, setExitCount] = useState(0);
+  const [showVehicleDialog, setShowVehicleDialog] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{
+    type: 'entry' | 'exit';
+    newOccupancy: number;
+  } | null>(null);
 
   // Debug on initial render and when office changes
   useEffect(() => {
@@ -64,21 +70,12 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       console.log('handleIncrement - Current:', office.occupancy, 'New:', newOccupancy);
       
-      // Record the activity
-      recordActivity('check-in', office.name, office.id);
-      
-      // Update the entry counter
-      setEntryCount(prevCount => prevCount + 1);
-      
-      // Call the onUpdate callback with the new occupancy
-      console.log('About to call onUpdate with newOccupancy:', newOccupancy);
-      onUpdate(newOccupancy);
-      
-      // Display toast confirmation
-      toast({
-        title: t('vehicleEntered'),
-        description: "",
+      // Store pending action and show vehicle dialog
+      setPendingAction({
+        type: 'entry',
+        newOccupancy
       });
+      setShowVehicleDialog(true);
       
     } catch (err) {
       console.error('Error in handleIncrement:', err);
@@ -110,21 +107,12 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
       
       console.log('handleDecrement - Current:', office.occupancy, 'New:', newOccupancy);
       
-      // Record the activity
-      recordActivity('check-out', office.name, office.id);
-      
-      // Update the exit counter
-      setExitCount(prevCount => prevCount + 1);
-      
-      // Call the onUpdate callback with the new occupancy
-      console.log('About to call onUpdate with newOccupancy:', newOccupancy);
-      onUpdate(newOccupancy);
-      
-      // Display toast confirmation
-      toast({
-        title: t('vehicleExited'),
-        description: "",
+      // Store pending action and show vehicle dialog
+      setPendingAction({
+        type: 'exit',
+        newOccupancy
       });
+      setShowVehicleDialog(true);
       
     } catch (err) {
       console.error('Error in handleDecrement:', err);
@@ -133,6 +121,45 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
         description: t('failedToUpdate'),
         variant: "destructive",
       });
+    }
+  };
+
+  // Handle vehicle dialog confirmation
+  const handleVehicleDialogConfirm = async (vehicleNumber: string) => {
+    if (!pendingAction) return;
+
+    try {
+      const { type, newOccupancy } = pendingAction;
+      
+      // Record the activity
+      recordActivity(type, office.name, office.id, vehicleNumber);
+      
+      // Update the entry/exit counter
+      if (type === 'entry') {
+        setEntryCount(prevCount => prevCount + 1);
+      } else {
+        setExitCount(prevCount => prevCount + 1);
+      }
+      
+      // Call the onUpdate callback with the new occupancy
+      console.log('About to call onUpdate with newOccupancy:', newOccupancy);
+      onUpdate(newOccupancy);
+      
+      // Display toast confirmation
+      toast({
+        title: type === 'entry' ? t('vehicleEntered') : t('vehicleExited'),
+        description: vehicleNumber ? `${t('vehicleNumber')}: ${vehicleNumber}` : "",
+      });
+      
+    } catch (err) {
+      console.error('Error in handleVehicleDialogConfirm:', err);
+      toast({
+        title: t('errorUpdatingOccupancy'),
+        description: t('failedToUpdate'),
+        variant: "destructive",
+      });
+    } finally {
+      setPendingAction(null);
     }
   };
 
@@ -176,6 +203,13 @@ const OfficeActions = ({ office, onUpdate, showDebugInfo = false }: OfficeAction
           <ActivityDropdown />
         </div>
       </div>
+
+      <VehicleNumberDialog
+        isOpen={showVehicleDialog}
+        onClose={() => setShowVehicleDialog(false)}
+        onConfirm={handleVehicleDialogConfirm}
+        actionType={pendingAction?.type || 'entry'}
+      />
     </div>
   );
 };

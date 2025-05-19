@@ -4,4 +4,5 @@ export interface ActivityEvent {
   type: 'check-in' | 'check-out';
   officeName: string;
   timestamp: string; // ISO string format
+  vehicleNumber?: string;
 }
