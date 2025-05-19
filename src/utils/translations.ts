@@ -45,11 +45,16 @@ export const translations = {
     parkingStatus: (name: string) => `${name} Parking Status`,
     currentOccupancy: "Current Parking Occupancy",
     parkingFull: "Parking is full",
+    parkingLotFull: "Parking lot is full",
+    parkingLotEmpty: "Parking lot is empty",
+    operationFailed: "Operation failed",
     occupiedPercentage: (percentage: number) => `${percentage}% occupied`,
     availableSlots: "Available Parking Slots",
     noSpaces: "No spaces available",
     availablePercentage: (percentage: number) => `${percentage}% available`,
     vehicleEntryExit: "Vehicle Entry/Exit",
+    vehicleEntry: "Vehicle Entry",
+    vehicleExit: "Vehicle Exit",
     pleaseSelectOffice: "Please select an office to manage parking",
     
     // Select Office toast messages
@@ -64,6 +69,17 @@ export const translations = {
     releaseToExit: "Release to Exit",
     vehicleExited: "Vehicle Exited",
     recentActivity: "Recent Activity",
+    officeActions: "Office Actions",
+    vehicleProcessing: "Processing...",
+    
+    // Vehicle Number Modal
+    skip: "Skip",
+    confirm: "Confirm",
+    vehicleNumberPlaceholder: "e.g., ABC123",
+    vehicleNumberEntranceTitle: "Enter Vehicle Number",
+    vehicleNumberExitTitle: "Enter Vehicle Number",
+    vehicleNumberEntranceDescription: "Please enter the vehicle number for vehicle entry.",
+    vehicleNumberExitDescription: "Please enter the vehicle number for vehicle exit.",
     
     // Office Actions toast messages
     noVehiclesToExit: "No vehicles to exit",
@@ -127,11 +143,16 @@ export const translations = {
     parkingStatus: (name: string) => `${name} Parking Status`,
     currentOccupancy: "ಪ್ರಸ್ತುತ ಪಾರ್ಕಿಂಗ್ ಭರ್ತಿ",
     parkingFull: "Parking is full",
+    parkingLotFull: "ಪಾರ್ಕಿಂಗ್ ಲಾಟ್ ತುಂಬಿದೆ",
+    parkingLotEmpty: "ಪಾರ್ಕಿಂಗ್ ಲಾಟ್ ಖಾಲಿಯಾಗಿದೆ",
+    operationFailed: "ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ",
     occupiedPercentage: (percentage: number) => `${percentage}% occupied`,
     availableSlots: "ಲಭ್ಯವಿರುವ ಪಾರ್ಕಿಂಗ್ ಸ್ಲಾಟ್‌ಗಳು",
     noSpaces: "ಯಾವುದೇ ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ",
     availablePercentage: (percentage: number) => `${percentage}% available`,
     vehicleEntryExit: "ವಾಹನ ಪ್ರವೇಶ/ನಿರ್ಗಮನ",
+    vehicleEntry: "ವಾಹನ ಪ್ರವೇಶ",
+    vehicleExit: "ವಾಹನ ನಿರ್ಗಮನ",
     pleaseSelectOffice: "ಪಾರ್ಕಿಂಗ್ ನಿರ್ವಹಿಸಲು ದಯವಿಟ್ಟು ಒಂದು ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     
     // Select Office toast messages
@@ -146,6 +167,17 @@ export const translations = {
     releaseToExit: "ನಿರ್ಗಮನಕ್ಕೆ ಬಿಡುಗಡೆ ಮಾಡಿ",
     vehicleExited: "ವಾಹನ ನಿರ್ಗಮನ ಮಾಡಿತು",
     recentActivity: "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
+    officeActions: "ಕಚೇರಿ ಕ್ರಿಯೆಗಳು",
+    vehicleProcessing: "ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ...",
+    
+    // Vehicle Number Modal
+    skip: "ಸ್ಕಿಪ್",
+    confirm: "ದೃಢೀಕರಿಸಿ",
+    vehicleNumberPlaceholder: "ಉದಾ., ABC123",
+    vehicleNumberEntranceTitle: "ವಾಹನ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
+    vehicleNumberExitTitle: "ವಾಹನ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
+    vehicleNumberEntranceDescription: "ದಯವಿಟ್ಟು ವಾಹನ ಪ್ರವೇಶಕ್ಕಾಗಿ ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+    vehicleNumberExitDescription: "ದಯವಿಟ್ಟು ವಾಹನ ನಿರ್ಗಮನಕ್ಕಾಗಿ ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
     
     // Office Actions toast messages
     noVehiclesToExit: "ನಿರ್ಗಮನಕ್ಕೆ ಯಾವುದೇ ವಾಹನಗಳಿಲ್ಲ",

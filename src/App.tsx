@@ -10,6 +10,7 @@ import GuardLogin from "./pages/GuardLogin";
 import SelectOffice from "./pages/SelectOffice";
 import { useEffect } from "react";
 import { LanguageProvider } from "./context/LanguageContext";
+import { ToastContainer } from "react-toastify";
 
 // Create a style for mobile viewport height adjustment
 const appStyle = {
@@ -99,6 +100,7 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<GuardLogin />} />
