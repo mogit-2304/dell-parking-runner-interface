@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Clock } from 'lucide-react';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Lock, Clock, Eye, EyeOff } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,34 +13,37 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 // Mock API for simulating backend responses
 const mockApi = {
+  // List of allowed phone numbers
+  allowedPhoneNumbers: ['9885657890', '7456657320', '8989006732', '9908904546', '8909883121'],
+  
   // Simulates a phone number validation check
   validatePhoneNumber: (phone: string): Promise<{valid: boolean}> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Updated: Accept phone numbers starting with 7, 8, or 9 (instead of just 9)
-        const isValid = (phone.startsWith('7') || phone.startsWith('8') || phone.startsWith('9')) && phone.length === 10;
+        // Check if phone number is in the allowed list
+        const isValid = mockApi.allowedPhoneNumbers.includes(phone);
         resolve({ valid: isValid });
       }, 800);
     });
   },
   
-  // Simulates sending an OTP to a phone number
-  requestOTP: (phone: string): Promise<{success: boolean, expiresAt: Date}> => {
+  // Simulates sending a verification code to a phone number
+  requestVerification: (phone: string): Promise<{success: boolean, expiresAt: Date}> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         // In a real app, this would trigger an SMS to be sent
-        const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes from now
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
         resolve({ success: true, expiresAt });
       }, 1000);
     });
   },
   
-  // Simulates verifying an OTP
-  verifyOTP: (phone: string, otp: string, attempts: number): Promise<{success: boolean, token?: string, locked?: boolean, message?: string}> => {
+  // Simulates verifying a password
+  verifyPassword: (phone: string, password: string, attempts: number): Promise<{success: boolean, token?: string, locked?: boolean, message?: string}> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // For testing: "123456" is always the "correct" OTP
-        const isCorrect = otp === "123456";
+        // The correct password is "123@Classified" for all allowed numbers
+        const isCorrect = password === "123@Classified";
         
         // Handle lockout after 5 attempts
         if (attempts >= 5) {
@@ -56,7 +59,7 @@ const mockApi = {
         } else {
           resolve({ 
             success: false,
-            message: "Invalid OTP" 
+            message: "Invalid password" 
           });
         }
       }, 800);
@@ -68,14 +71,14 @@ const phoneSchema = z.object({
   phone: z.string().min(10, "Phone number must be 10 digits").max(10, "Phone number must be 10 digits").regex(/^\d+$/, "Must contain only digits")
 });
 
-const otpSchema = z.object({
-  otp: z.string().length(6, "OTP must be 6 digits")
+const passwordSchema = z.object({
+  password: z.string().min(1, "Password is required")
 });
 
 const GuardLogin = () => {
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [step, setStep] = useState<'phone' | 'password'>('phone');
   const [phone, setPhone] = useState<string>('');
-  const [otpExpiry, setOtpExpiry] = useState<Date | null>(null);
+  const [verificationExpiry, setVerificationExpiry] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [attempts, setAttempts] = useState<number>(0);
   const [isLocked, setIsLocked] = useState<boolean>(false);
@@ -83,6 +86,7 @@ const GuardLogin = () => {
   const [lockdownTimeLeft, setLockdownTimeLeft] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   
   const { toast } = useToast();
   
@@ -93,28 +97,28 @@ const GuardLogin = () => {
     },
   });
   
-  const otpForm = useForm<z.infer<typeof otpSchema>>({
-    resolver: zodResolver(otpSchema),
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
     defaultValues: {
-      otp: '',
+      password: '',
     },
   });
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     
-    // Timer for OTP expiry countdown
-    if (otpExpiry && step === 'otp') {
+    // Timer for verification expiry countdown
+    if (verificationExpiry && step === 'password') {
       timer = setInterval(() => {
         const now = new Date();
-        const diff = otpExpiry.getTime() - now.getTime();
+        const diff = verificationExpiry.getTime() - now.getTime();
         
         if (diff <= 0) {
           setTimeLeft(0);
           clearInterval(timer);
           toast({
-            title: "OTP Expired",
-            description: "Your one-time password has expired. Please request a new one.",
+            title: "Session Expired",
+            description: "Your verification session has expired. Please try again.",
             variant: "destructive",
           });
         } else {
@@ -141,7 +145,7 @@ const GuardLogin = () => {
     }
     
     return () => clearInterval(timer);
-  }, [otpExpiry, step, isLocked, lockdownEndTime, toast]);
+  }, [verificationExpiry, step, isLocked, lockdownEndTime, toast]);
 
   const handlePhoneSubmit = async (data: z.infer<typeof phoneSchema>) => {
     try {
@@ -157,16 +161,16 @@ const GuardLogin = () => {
         return;
       }
       
-      // Phone is valid, request OTP
-      const otpResult = await mockApi.requestOTP(data.phone);
+      // Phone is valid, request verification
+      const verificationResult = await mockApi.requestVerification(data.phone);
       
-      if (otpResult.success) {
+      if (verificationResult.success) {
         setPhone(data.phone);
-        setOtpExpiry(otpResult.expiresAt);
-        setStep('otp');
+        setVerificationExpiry(verificationResult.expiresAt);
+        setStep('password');
         toast({
-          title: "OTP Sent",
-          description: `A one-time password has been sent to ${data.phone}`,
+          title: "Phone Verified",
+          description: `Please enter your password to continue`,
         });
       }
     } catch (err) {
@@ -176,7 +180,7 @@ const GuardLogin = () => {
     }
   };
   
-  const handleOTPSubmit = async (data: z.infer<typeof otpSchema>) => {
+  const handlePasswordSubmit = async (data: z.infer<typeof passwordSchema>) => {
     try {
       setLoading(true);
       setError(null);
@@ -187,13 +191,13 @@ const GuardLogin = () => {
         return;
       }
       
-      if (otpExpiry && new Date() > otpExpiry) {
-        setError("OTP expired. Please request a new one.");
+      if (verificationExpiry && new Date() > verificationExpiry) {
+        setError("Session expired. Please try again.");
         setLoading(false);
         return;
       }
       
-      const verifyResult = await mockApi.verifyOTP(phone, data.otp, attempts);
+      const verifyResult = await mockApi.verifyPassword(phone, data.password, attempts);
       
       if (verifyResult.success) {
         // Successful login
@@ -215,13 +219,13 @@ const GuardLogin = () => {
           setError(verifyResult.message || "Too many attempts—try again in 15 minutes");
         } else {
           setAttempts(attempts + 1);
-          setError(verifyResult.message || "Invalid OTP");
+          setError(verifyResult.message || "Invalid password");
           
           // Show how many attempts are left
           const attemptsLeft = 5 - (attempts + 1);
           if (attemptsLeft > 0) {
             toast({
-              title: "Invalid OTP",
+              title: "Invalid Password",
               description: `${attemptsLeft} attempts remaining before lockout.`,
               variant: "destructive",
             });
@@ -235,24 +239,24 @@ const GuardLogin = () => {
     }
   };
 
-  const requestNewOTP = async () => {
+  const requestNewVerification = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const otpResult = await mockApi.requestOTP(phone);
+      const verificationResult = await mockApi.requestVerification(phone);
       
-      if (otpResult.success) {
-        setOtpExpiry(otpResult.expiresAt);
+      if (verificationResult.success) {
+        setVerificationExpiry(verificationResult.expiresAt);
         setAttempts(0);
-        otpForm.reset();
+        passwordForm.reset();
         toast({
-          title: "New OTP Sent",
-          description: `A new one-time password has been sent to ${phone}`,
+          title: "New Verification Session",
+          description: `A new verification session has been started`,
         });
       }
     } catch (err) {
-      setError("Failed to request a new OTP. Please try again.");
+      setError("Failed to request a new verification. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -262,6 +266,10 @@ const GuardLogin = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -285,8 +293,8 @@ const GuardLogin = () => {
           <CardTitle className="text-2xl font-bold">Guard Login</CardTitle>
           <CardDescription>
             {step === 'phone' 
-              ? 'Enter your registered phone number to receive a one-time password.' 
-              : `Enter the 6-digit code sent to ${phone.replace(/(\d{2})(\d{4})(\d{4})/, '$1****$3')}`}
+              ? 'Enter your registered phone number to continue.' 
+              : `Enter your password to log in with ${phone.replace(/(\d{2})(\d{4})(\d{4})/, '$1****$3')}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -327,26 +335,35 @@ const GuardLogin = () => {
               </form>
             </Form>
           ) : (
-            <Form {...otpForm}>
-              <form onSubmit={otpForm.handleSubmit(handleOTPSubmit)} className="space-y-6">
+            <Form {...passwordForm}>
+              <form onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)} className="space-y-6">
                 <div className="space-y-2">
                   <FormField
-                    control={otpForm.control}
-                    name="otp"
+                    control={passwordForm.control}
+                    name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>One-Time Password</FormLabel>
+                        <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <InputOTP maxLength={6} {...field}>
-                            <InputOTPGroup>
-                              <InputOTPSlot index={0} />
-                              <InputOTPSlot index={1} />
-                              <InputOTPSlot index={2} />
-                              <InputOTPSlot index={3} />
-                              <InputOTPSlot index={4} />
-                              <InputOTPSlot index={5} />
-                            </InputOTPGroup>
-                          </InputOTP>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password"
+                              {...field}
+                              className="text-base pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={togglePasswordVisibility}
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-5 w-5 text-gray-500" />
+                              ) : (
+                                <Eye className="h-5 w-5 text-gray-500" />
+                              )}
+                            </button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -357,7 +374,7 @@ const GuardLogin = () => {
                 {timeLeft > 0 && (
                   <div className="flex items-center justify-center text-sm text-muted-foreground">
                     <Clock className="mr-2 h-4 w-4" />
-                    <span>OTP expires in {formatTime(timeLeft)}</span>
+                    <span>Session expires in {formatTime(timeLeft)}</span>
                   </div>
                 )}
               </form>
@@ -371,16 +388,16 @@ const GuardLogin = () => {
               onClick={phoneForm.handleSubmit(handlePhoneSubmit)}
               disabled={loading}
             >
-              {loading ? "Sending..." : "Send OTP"}
+              {loading ? "Verifying..." : "Continue"}
             </Button>
           ) : (
             <>
               <Button 
                 className="w-full" 
-                onClick={otpForm.handleSubmit(handleOTPSubmit)}
+                onClick={passwordForm.handleSubmit(handlePasswordSubmit)}
                 disabled={loading || isLocked}
               >
-                {loading ? "Verifying..." : "Verify OTP"}
+                {loading ? "Verifying..." : "Login"}
               </Button>
               
               <div className="flex w-full justify-between text-sm">
@@ -389,7 +406,7 @@ const GuardLogin = () => {
                   onClick={() => {
                     setStep('phone');
                     setAttempts(0);
-                    otpForm.reset();
+                    passwordForm.reset();
                   }}
                   disabled={loading}
                   className="px-0"
@@ -398,11 +415,11 @@ const GuardLogin = () => {
                 </Button>
                 <Button 
                   variant="link" 
-                  onClick={requestNewOTP}
+                  onClick={requestNewVerification}
                   disabled={loading || timeLeft > 0}
                   className="px-0"
                 >
-                  Resend OTP
+                  Restart Session
                 </Button>
               </div>
             </>
