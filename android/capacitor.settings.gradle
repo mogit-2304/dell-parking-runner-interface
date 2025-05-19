@@ -16,6 +16,17 @@ gradle.beforeProject { project ->
                     debug {}
                     release {}
                 }
+                
+                // Set Java compatibility to match the app
+                project.android.compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+                
+                // Enable buildConfig to avoid conflicts
+                project.android.buildFeatures {
+                    buildConfig true
+                }
             }
         }
     }

@@ -6,8 +6,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // Using a version of the Android Gradle Plugin that's compatible with both debug and release builds
-        classpath 'com.android.tools.build:gradle:8.1.4'
+        // Using a consistent version of the Android Gradle Plugin (8.1.0 instead of 8.1.4)
+        classpath 'com.android.tools.build:gradle:8.1.0'
         classpath 'com.google.gms:google-services:4.4.0'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -21,7 +21,7 @@ allprojects {
         mavenCentral()
     }
     
-    // Add this configuration to ensure all projects expose both debug and release variants
+    // Improve variant handling for library projects
     plugins.withId('com.android.library') {
         android {
             buildTypes {

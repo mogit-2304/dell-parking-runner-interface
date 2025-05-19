@@ -10,10 +10,8 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
-    // Use implementation instead of configuration to support both debug and release variants
-    implementation(project(':capacitor-cordova-android-plugins')) {
-        transitive = true
-    }
+    // Simplified implementation that works with proper variant handling
+    implementation(project(':capacitor-cordova-android-plugins'))
 }
 
 if (hasProperty('postBuildExtras')) {
