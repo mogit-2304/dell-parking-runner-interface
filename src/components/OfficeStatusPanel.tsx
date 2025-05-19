@@ -2,6 +2,7 @@
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Office } from '@/types/officeTypes';
+import { Progress } from '@/components/ui/progress';
 
 interface OfficeStatusPanelProps {
   office: Office;
@@ -9,6 +10,7 @@ interface OfficeStatusPanelProps {
 
 const OfficeStatusPanel = ({ office }: OfficeStatusPanelProps) => {
   const { t } = useTranslation();
+  const occupancyPercentage = Math.round((office.occupancy / office.capacity) * 100);
 
   return (
     <div className="bg-white rounded-lg p-6 border shadow-sm">
@@ -24,20 +26,15 @@ const OfficeStatusPanel = ({ office }: OfficeStatusPanelProps) => {
             <div className="text-sm text-gray-500">
               {office.occupancy === office.capacity 
                 ? t('parkingFull')
-                : t('occupiedPercentage', Math.round((office.occupancy / office.capacity) * 100))
+                : t('occupiedPercentage', occupancyPercentage)
               }
             </div>
           </div>
-          <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className={`h-full rounded-full ${
-                office.occupancy / office.capacity > 0.8 
-                  ? 'bg-red-500' 
-                  : office.occupancy / office.capacity > 0.5 
-                    ? 'bg-yellow-500' 
-                    : 'bg-green-500'
-              }`}
-              style={{ width: `${Math.min(100, (office.occupancy / office.capacity) * 100)}%` }}
+          <div className="mt-2">
+            <Progress 
+              value={occupancyPercentage} 
+              className="h-2 bg-gray-200" 
+              indicatorClassName="bg-[#ea384c]" 
             />
           </div>
         </div>
