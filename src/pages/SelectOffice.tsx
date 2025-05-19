@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,9 +55,8 @@ const SelectOffice = () => {
             return prev;
           });
           
-          // Display toast for confirmation
+          // Display toast for confirmation - removed the title, keeping only the description
           toast({
-            title: t('officeUpdated'),
             description: t('occupancyUpdated', selectedOffice.name, newOccupancy),
           });
         }

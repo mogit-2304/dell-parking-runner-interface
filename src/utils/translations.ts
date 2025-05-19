@@ -53,7 +53,7 @@ export const translations = {
     pleaseSelectOffice: "Please select an office to manage parking",
     
     // Select Office toast messages
-    officeUpdated: "Office Updated",
+    officeUpdated: "", // Removed "Office Updated" text
     occupancyUpdated: (name: string, number: number) => `${name} occupancy updated to ${number}`,
     
     // Office Actions Component
@@ -135,7 +135,7 @@ export const translations = {
     pleaseSelectOffice: "ಪಾರ್ಕಿಂಗ್ ನಿರ್ವಹಿಸಲು ದಯವಿಟ್ಟು ಒಂದು ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     
     // Select Office toast messages
-    officeUpdated: "ಕಚೇರಿ ನವೀಕರಿಸಲಾಗಿದೆ",
+    officeUpdated: "", // Removed "Office Updated" text
     occupancyUpdated: (name: string, number: number) => `${name} occupancy updated to ${number}`,
     
     // Office Actions Component
