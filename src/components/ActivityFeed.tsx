@@ -49,6 +49,11 @@ export const ActivityFeed = () => {
           <p className="text-sm">
             <span className="font-medium">{label}</span> – {activity.officeName} – {formatTimestamp(activity.timestamp)}
           </p>
+          {activity.vehicleNumber && (
+            <p className="text-xs text-gray-500">
+              Vehicle: {activity.vehicleNumber}
+            </p>
+          )}
         </div>
       </div>
     );

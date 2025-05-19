@@ -17,6 +17,7 @@ export type Database = {
           office_name: string
           timestamp: string
           type: string
+          vehicle_number: string | null
         }
         Insert: {
           created_at?: string
@@ -25,6 +26,7 @@ export type Database = {
           office_name: string
           timestamp?: string
           type: string
+          vehicle_number?: string | null
         }
         Update: {
           created_at?: string
@@ -33,6 +35,7 @@ export type Database = {
           office_name?: string
           timestamp?: string
           type?: string
+          vehicle_number?: string | null
         }
         Relationships: [
           {
