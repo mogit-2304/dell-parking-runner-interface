@@ -30,8 +30,7 @@ export const useActivityFeed = () => {
         id: event.id,
         type: event.type as 'check-in' | 'check-out',
         officeName: event.office_name,
-        timestamp: event.timestamp,
-        vehicleNumber: event.vehicle_number || undefined
+        timestamp: event.timestamp
       }));
       
       // Update state with activities
@@ -61,8 +60,7 @@ export const useActivityFeed = () => {
           id: payload.new.id,
           type: payload.new.type as 'check-in' | 'check-out',
           officeName: payload.new.office_name,
-          timestamp: payload.new.timestamp,
-          vehicleNumber: payload.new.vehicle_number || undefined
+          timestamp: payload.new.timestamp
         };
         
         setActivities(prev => [newActivity, ...prev].slice(0, 20));
@@ -81,20 +79,14 @@ export const useActivityFeed = () => {
   }, [fetchActivities]);
   
   // Record a new activity event
-  const recordActivity = useCallback(async (
-    type: 'check-in' | 'check-out', 
-    officeName: string, 
-    officeId: string,
-    vehicleNumber?: string
-  ) => {
+  const recordActivity = useCallback(async (type: 'check-in' | 'check-out', officeName: string, officeId: string) => {
     try {
       // Create new activity object
       const newActivity = {
         type,
         office_name: officeName,
         office_id: officeId,
-        timestamp: new Date().toISOString(),
-        vehicle_number: vehicleNumber || null
+        timestamp: new Date().toISOString()
       };
       
       // Insert into Supabase
