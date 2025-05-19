@@ -14,6 +14,7 @@ const en = {
   next: 'Next',
   save: 'Save',
   delete: 'Delete',
+  useOptions: 'Use the options below',
   
   // Parking status
   parkingStatus: (name: string) => `${name} Parking Status`,
@@ -30,6 +31,7 @@ const en = {
   // Office selection
   officeLocation: 'Office Location',
   selectOffice: 'Select Office',
+  pleaseSelectOffice: 'Please select an office to continue',
   
   // Authentication
   logoutSuccessful: 'Logged Out Successfully',
@@ -42,6 +44,7 @@ const en = {
   parkingEmpty: (officeName: string) => `Parking at ${officeName} is empty.`,
   errorUpdatingOccupancy: 'Error Updating Occupancy',
   failedToUpdate: 'Failed to update occupancy. Please try again.',
+  occupancyUpdated: 'Occupancy Updated Successfully',
   
   // Vehicle entry/exit
   vehicleEntered: 'Vehicle Entered',
@@ -49,6 +52,7 @@ const en = {
   vehicleNumber: 'Vehicle Number',
   vehicleEntryDetails: 'Vehicle Entry Details',
   vehicleExitDetails: 'Vehicle Exit Details',
+  vehicleEntryExit: 'Vehicle Entry/Exit',
   
   // Slider actions
   slideToEnter: 'Slide to Enter',
@@ -82,6 +86,7 @@ const kannada = {
   next: 'ಮುಂದೆ',
   save: 'ಉಳಿಸು',
   delete: 'ಅಳಿಸು',
+  useOptions: 'ಕೆಳಗಿನ ಆಯ್ಕೆಗಳನ್ನು ಬಳಸಿ',
   
   // Parking status
   parkingStatus: (name: string) => `${name} ಪಾರ್ಕಿಂಗ್ ಸ್ಥಿತಿ`,
@@ -98,6 +103,7 @@ const kannada = {
   // Office selection
   officeLocation: 'ಕಚೇರಿ ಸ್ಥಳ',
   selectOffice: 'ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+  pleaseSelectOffice: 'ಮುಂದುವರಿಯಲು ದಯವಿಟ್ಟು ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆ ಮಾಡಿ',
   
   // Authentication
   logoutSuccessful: 'ಯಶಸ್ವಿಯಾಗಿ ಲಾಗ್ ಔಟ್ ಆಗಿದೆ',
@@ -110,6 +116,7 @@ const kannada = {
   parkingEmpty: (officeName: string) => `${officeName} ನಲ್ಲಿ ಪಾರ್ಕಿಂಗ್ ಖಾಲಿ ಇದೆ.`,
   errorUpdatingOccupancy: 'ಆಕ್ರಮಣ ನವೀಕರಿಸುವಲ್ಲಿ ದೋಷ',
   failedToUpdate: 'ಆಕ್ರಮಣವನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+  occupancyUpdated: 'ಆಕ್ರಮಣ ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ',
   
   // Vehicle entry/exit
   vehicleEntered: 'ವಾಹನ ಪ್ರವೇಶಿಸಿದೆ',
@@ -117,6 +124,7 @@ const kannada = {
   vehicleNumber: 'ವಾಹನ ಸಂಖ್ಯೆ',
   vehicleEntryDetails: 'ವಾಹನ ಪ್ರವೇಶ ವಿವರಗಳು',
   vehicleExitDetails: 'ವಾಹನ ನಿರ್ಗಮನ ವಿವರಗಳು',
+  vehicleEntryExit: 'ವಾಹನ ಪ್ರವೇಶ/ನಿರ್ಗಮನ',
   
   // Slider actions
   slideToEnter: 'ಪ್ರವೇಶಿಸಲು ಸ್ಲೈಡ್ ಮಾಡಿ',
@@ -153,7 +161,8 @@ export const useTranslation = () => {
     const translation = translations[language][key];
     
     if (typeof translation === 'function') {
-      return translation(...params);
+      // Pass the first parameter to the function
+      return translation(params[0]);
     }
     
     return translation as string;
