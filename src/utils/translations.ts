@@ -1,7 +1,8 @@
+
 // Add new entries to the existing translations file
 // or create if not exists
 
-const translations = {
+export const translations = {
   en: {
     parkingLotFull: 'Parking lot is full.',
     parkingLotEmpty: 'Parking lot is empty.',
@@ -79,6 +80,72 @@ const translations = {
     vehicleNumberExitDescription: 'Veuillez entrer le numéro du véhicule pour la sortie.',
     skip: 'Passer',
     confirm: 'Confirmer'
+  },
+  english: {
+    parkingLotFull: 'Parking lot is full.',
+    parkingLotEmpty: 'Parking lot is empty.',
+    vehicleEntered: 'Vehicle entered.',
+    vehicleExited: 'Vehicle exited.',
+    operationFailed: 'Operation failed.',
+    officeActions: 'Office Actions',
+    vehicleEntry: 'Vehicle Entry',
+    vehicleExit: 'Vehicle Exit',
+    slideToEnter: 'Slide to Enter →',
+    slideToExit: 'Slide to Exit ←',
+    releaseToEnter: 'Release to Enter',
+    releaseToExit: 'Release to Exit',
+    vehicleProcessing: 'Vehicle Processing...',
+    occupancyUpdated: 'Occupancy updated for {0} to {1}.',
+    pleaseSelectOffice: 'Please select an office.',
+    logoutSuccessful: 'Logged out successfully.',
+    logout: 'Logout',
+    logoutFailed: 'Logout failed',
+    logoutIssue: 'There was an issue during logout.',
+    recentActivity: 'Recent Activity',
+    selectOffice: 'Select Office',
+    officeLocation: 'Office Location',
+    
+    // Vehicle modal translations
+    vehicleNumberEntranceTitle: 'Enter Vehicle Number',
+    vehicleNumberExitTitle: 'Enter Vehicle Number',
+    vehicleNumberPlaceholder: 'e.g., ABC123',
+    vehicleNumberEntranceDescription: 'Please enter the vehicle number for vehicle entry.',
+    vehicleNumberExitDescription: 'Please enter the vehicle number for vehicle exit.',
+    skip: 'Skip',
+    confirm: 'Confirm'
+  },
+  kannada: {
+    parkingLotFull: 'ಪಾರ್ಕಿಂಗ್ ಸ್ಥಳ ತುಂಬಿದೆ.',
+    parkingLotEmpty: 'ಪಾರ್ಕಿಂಗ್ ಸ್ಥಳ ಖಾಲಿ ಇದೆ.',
+    vehicleEntered: 'ವಾಹನ ಪ್ರವೇಶಿಸಿದೆ.',
+    vehicleExited: 'ವಾಹನ ನಿರ್ಗಮಿಸಿದೆ.',
+    operationFailed: 'ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ.',
+    officeActions: 'ಕಚೇರಿ ಕ್ರಿಯೆಗಳು',
+    vehicleEntry: 'ವಾಹನ ಪ್ರವೇಶ',
+    vehicleExit: 'ವಾಹನ ನಿರ್ಗಮನ',
+    slideToEnter: 'ಪ್ರವೇಶಿಸಲು ಸ್ಲೈಡ್ ಮಾಡಿ →',
+    slideToExit: 'ನಿರ್ಗಮಿಸಲು ಸ್ಲೈಡ್ ಮಾಡಿ ←',
+    releaseToEnter: 'ಪ್ರವೇಶಿಸಲು ಬಿಡುಗಡೆ',
+    releaseToExit: 'ನಿರ್ಗಮಿಸಲು ಬಿಡುಗಡೆ',
+    vehicleProcessing: 'ವಾಹನ ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ...',
+    occupancyUpdated: '{0} ಗೆ ಆಕ್ರಮಣ {1} ಗೆ ನವೀಕರಿಸಲಾಗಿದೆ.',
+    pleaseSelectOffice: 'ದಯವಿಟ್ಟು ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.',
+    logoutSuccessful: 'ಯಶಸ್ವಿಯಾಗಿ ಲಾಗ್ ಔಟ್ ಮಾಡಲಾಗಿದೆ.',
+    logout: 'ಲಾಗ್ ಔಟ್',
+    logoutFailed: 'ಲಾಗ್ ಔಟ್ ವಿಫಲವಾಗಿದೆ',
+    logoutIssue: 'ಲಾಗ್ ಔಟ್ ಸಮಯದಲ್ಲಿ ಸಮಸ್ಯೆ ಇದೆ.',
+    recentActivity: 'ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ',
+    selectOffice: 'ಕಚೇರಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+    officeLocation: 'ಕಚೇರಿ ಸ್ಥಳ',
+    
+    // Vehicle modal translations
+    vehicleNumberEntranceTitle: 'ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ',
+    vehicleNumberExitTitle: 'ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ',
+    vehicleNumberPlaceholder: 'ಉದಾ. ABC123',
+    vehicleNumberEntranceDescription: 'ದಯವಿಟ್ಟು ವಾಹನ ಪ್ರವೇಶಕ್ಕೆ ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.',
+    vehicleNumberExitDescription: 'ದಯವಿಟ್ಟು ವಾಹನ ನಿರ್ಗಮನಕ್ಕೆ ವಾಹನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.',
+    skip: 'ಬಿಟ್ಟುಬಿಡಿ',
+    confirm: 'ದೃಢೀಕರಿಸಿ'
   }
 };
 
